@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>vuln-severity-evaluator — Documentación</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Documentación de vuln-severity-evaluator">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="dark-theme.css">
+  <script src="sidebar-collapse.js"></script>
+  <script src="diagram-controls.js"></script>
+</head>
+<body>
+  <script>
+    (function () {
+      var t = localStorage.getItem('docsify-theme');
+      if (t === 'dark') document.body.setAttribute('data-theme', 'dark');
+    }());
+  </script>
+
+  <button id="theme-toggle" title="Toggle dark mode">🌙</button>
+
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'vuln-severity-evaluator',
+      repo: '',
+      loadSidebar: true,
+      auto2top: true,
+      subMaxLevel: 0,
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Buscar en la documentación...',
+        noData: 'No se encontraron resultados.',
+        depth: 6,
+        hideOtherSidebarContent: false,
+        namespace: 'vuln-severity-evaluator-docs'
+      },
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md'
+      },
+      markdown: {
+        renderer: {
+          code: function (code, lang) {
+            if (lang === 'mermaid') {
+              return '<div class="mermaid">' + code + '</div>';
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
+      },
+      plugins: [
+        window.sidebarCollapsePlugin || function () {},
+        function (hook) {
+          hook.doneEach(function () {
+            if (window.mermaid) {
+              Promise.resolve(window.mermaid.run({ querySelector: '.mermaid' }))
+                .then(function () {
+                  if (window.diagramControls) {
+                    window.diagramControls.enhance();
+                  }
+                })
+                .catch(function (error) {
+                  console.warn('Mermaid render failed', error);
+                });
+            }
+            setTimeout(function () {
+              if (location.hash.indexOf('?') === -1 && location.hash.split('#').length <= 2) {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+              }
+            }, 50);
+          });
+        }
+      ]
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+      var isDark = localStorage.getItem('docsify-theme') === 'dark';
+      mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' });
+      window.mermaid = mermaid;
+  </script>
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+
+      var saved = localStorage.getItem('docsify-theme');
+      if (saved === 'dark') btn.textContent = '☀️';
+
+      btn.addEventListener('click', function () {
+        var current = document.body.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('docsify-theme', next);
+        window.location.reload();
+      });
+    }());
+  </script>
+</body>
+</html>
