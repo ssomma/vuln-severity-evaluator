@@ -34,12 +34,18 @@ influir en el score de su propia aplicación — pero no de forma invisible: que
 
 | Tabla | Contenido |
 |---|---|
-| `scheme_metric` | Una fila por métrica de un esquema: código, etiqueta, la guía que lee el modelo, si es `BASE` o `CONTEXTUAL`, y a qué métrica base sobreescribe |
+| `scheme_metric` | Una fila por métrica de un esquema: código, etiqueta, la guía que lee el modelo y el orden en que se presenta |
 | `scheme_metric_value` | Los valores admitidos de cada métrica y su peso. `weight_when_scope_changed` existe por la única métrica CVSS cuyo peso depende de Scope |
 
-Las métricas modificadas (`MAV`, `MAC`, …) apuntan por `overrides` a la base que reemplazan y **toman prestados sus
-pesos**, así que ningún coeficiente se guarda dos veces. `X` (Not Defined) no matchea ningún valor, de modo que la
-caída al valor base sale sola.
+**Una fila por métrica, no una por pasada de scoring.** Una métrica se puntúa dos veces —con el valor del vector
+baseline y con el que el modelo derivó del contexto— pero eso es cómo computa el esquema, no qué es el esquema: los
+pesos, los valores admitidos y la guía son la misma tabla leída dos veces. `X` (Not Defined) tampoco se siembra: es
+el protocolo de abstención, aplica a toda métrica por construcción, y la caída al valor baseline es explícita en el
+calculador.
+
+El prefijo `M` de las métricas Environmental de CVSS (`MAV`, `MAC`, …) es sintaxis del vector publicado, no una
+métrica aparte: `Cvss31` lo agrega solo al serializar `contextual_vector`, para que cualquier calculadora CVSS pueda
+reproducir los dos scores desde ese campo.
 
 Estas filas son a la vez la aritmética y el prompt: el mismo registro define qué valores se admiten y qué significa
 cada métrica para el modelo, así que no hay dos lugares que puedan desincronizarse.

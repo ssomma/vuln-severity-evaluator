@@ -7,6 +7,8 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 
+import static org.challenge.vulnseverityevaluator.domain.model.SchemeMetric.NOT_DEFINED;
+
 /**
  * What the language model proposes: a value for every contextual metric, each with its reasoning.
  * <p>
@@ -23,8 +25,6 @@ import java.util.Optional;
  * should not be told its request was wrong.
  */
 public record ModelSeverityProposal(List<MetricChoice> choices, String summary) {
-
-    private static final String NOT_DEFINED = "X";
 
     public static ModelSeverityProposal createModelSeverityProposal(List<MetricChoice> choices,
                                                                     String summary,

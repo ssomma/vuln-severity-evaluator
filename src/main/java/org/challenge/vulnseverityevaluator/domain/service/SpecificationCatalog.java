@@ -17,7 +17,6 @@ import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.
 import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.DATA_CLASSIFICATION;
 import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.EXPOSURE;
 import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.RUNTIME;
-import static org.challenge.vulnseverityevaluator.domain.model.SchemeMetric.Kind.CONTEXTUAL;
 
 /**
  * The catalogs the evaluation reads: the scoring specification and the admitted context values.
@@ -39,15 +38,12 @@ public class SpecificationCatalog {
         this.attributes = attributes;
     }
 
+    /**
+     * The metrics of the scheme, which are also the vocabulary the model may answer: every metric is contextualisable,
+     * so there is nothing to filter out.
+     */
     public List<SchemeMetric> specification(String schemeId) {
         return metrics.findBySchemeIdOrderByOrdinal(schemeId);
-    }
-
-    /**
-     * What the model is allowed to answer: the contextual metrics of the scheme.
-     */
-    public static List<SchemeMetric> vocabulary(List<SchemeMetric> specification) {
-        return specification.stream().filter(metric -> metric.kind() == CONTEXTUAL).toList();
     }
 
     /**

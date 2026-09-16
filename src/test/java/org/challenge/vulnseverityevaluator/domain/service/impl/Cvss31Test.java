@@ -28,7 +28,6 @@ import static org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProp
 import static org.challenge.vulnseverityevaluator.domain.model.SeverityRating.CRITICAL;
 import static org.challenge.vulnseverityevaluator.domain.model.SeverityRating.MEDIUM;
 import static org.challenge.vulnseverityevaluator.domain.model.SeverityRating.NONE;
-import static org.challenge.vulnseverityevaluator.domain.service.SpecificationCatalog.vocabulary;
 
 /**
  * The arithmetic, checked against vectors published with the CVSS v3.1 specification.
@@ -90,7 +89,7 @@ class Cvss31Test {
     @Test
     void givenLowCriticalityInternalApplicationWhenAssessingThenReturnLoweredContextualScore() {
         SeverityAssessment assessment = assess("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-                "CR", "L", "IR", "L", "AR", "L", "MAV", "L");
+                "CR", "L", "IR", "L", "AR", "L", "AV", "L");
 
         assertThat(assessment.baseline().score()).isEqualByComparingTo(new BigDecimal("9.8"));
         assertThat(assessment.contextual().score()).isEqualByComparingTo(new BigDecimal("6.6"));
@@ -115,6 +114,17 @@ class Cvss31Test {
         assertThat(assessment.baseline().vector()).isEqualTo("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H");
         assertThat(assessment.contextual().vector()).contains("CR:H", "IR:M", "AR:L", "MAV:X");
         assertThat(assessment.schemeId()).isEqualTo("CVSS:3.1");
+    }
+
+    /**
+     * Every metric has to reach the justification. A contextualisation that silently dropped one would score with a
+     * value nobody can see afterwards.
+     */
+    @Test
+    void givenAssessmentWhenReadingJustificationThenReturnOneEntryPerMetric() {
+        SeverityAssessment assessment = assess("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H");
+
+        assertThat(assessment.justification()).hasSameSizeAs(specification);
     }
 
     @Test
@@ -147,8 +157,8 @@ class Cvss31Test {
         IntStream.iterate(0, index -> index < overrides.length, index -> index + 2)
                 .forEach(index -> chosen.put(overrides[index], overrides[index + 1]));
         List<MetricChoice> choices = new ArrayList<>();
-        vocabulary(specification).forEach(metric -> choices.add(createMetricChoice(
+        specification.forEach(metric -> choices.add(createMetricChoice(
                 metric.code(), chosen.getOrDefault(metric.code(), NOT_DEFINED), SUMMARY)));
-        return createModelSeverityProposal(choices, SUMMARY, vocabulary(specification));
+        return createModelSeverityProposal(choices, SUMMARY, specification);
     }
 }

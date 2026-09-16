@@ -26,6 +26,7 @@ import static java.math.RoundingMode.DOWN;
 import static java.math.RoundingMode.HALF_UP;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.challenge.vulnseverityevaluator.domain.model.SchemeMetric.NOT_DEFINED;
 
 /**
  * CVSS v3.1: Base metrics anchor the score, Environmental metrics re-score it for the concrete application.
@@ -48,7 +49,7 @@ public class Cvss31 implements SeverityScheme {
 
     private static final String SEPARATOR = "/";
     private static final String ASSIGNMENT = ":";
-    private static final String NOT_DEFINED = "X";
+    private static final String MODIFIED_PREFIX = "M";
     private static final String SCOPE = "S";
     private static final String SCOPE_CHANGED = "C";
     private static final List<String> BASE_CODES = List.of("AV", "AC", "PR", "UI", "S", "C", "I", "A");
@@ -88,7 +89,7 @@ public class Cvss31 implements SeverityScheme {
         Map<String, SchemeMetric> catalog = metrics.stream().collect(toMap(SchemeMetric::code, identity()));
         Map<String, String> baseline = parse(baselineVector, catalog);
         Computation base = new Computation(baseline, neutral(), catalog);
-        Computation contextual = new Computation(modified(baseline, proposal, metrics),
+        Computation contextual = new Computation(modified(baseline, proposal),
                 requirements(proposal, catalog), catalog);
         return new SeverityAssessment(SCHEME_ID,
                 score(base, ONE, BASE_EXPONENT, vector(baseline)),
@@ -102,23 +103,19 @@ public class Cvss31 implements SeverityScheme {
     }
 
     /**
-     * Resolves the vector the contextual score is computed from: a Modified metric replaces the base metric it
-     * overrides, and X (Not Defined) keeps the baseline value, exactly as the specification prescribes.
+     * Resolves the vector the contextual score is computed from: the value the model chose for a metric replaces the
+     * one the baseline vector carried, and X (Not Defined) keeps the baseline value, exactly as the specification
+     * prescribes.
      */
-    private static Map<String, String> modified(Map<String, String> baseline, ModelSeverityProposal proposal,
-                                                List<SchemeMetric> metrics) {
+    private static Map<String, String> modified(Map<String, String> baseline, ModelSeverityProposal proposal) {
         Map<String, String> resolved = new LinkedHashMap<>(baseline);
-        metrics.stream()
-                .filter(metric -> metric.overrides().isPresent())
-                .forEach(metric -> override(resolved, metric, proposal));
+        BASE_CODES.forEach(code -> resolved.computeIfPresent(code,
+                (metric, value) -> chosen(proposal.value(metric), value)));
         return resolved;
     }
 
-    private static void override(Map<String, String> resolved, SchemeMetric metric, ModelSeverityProposal proposal) {
-        String chosen = proposal.value(metric.code());
-        boolean abstained = NOT_DEFINED.equals(chosen);
-        resolved.computeIfPresent(metric.overrides().orElseThrow(),
-                (code, baseline) -> abstained ? baseline : chosen);
+    private static String chosen(String contextual, String baseline) {
+        return NOT_DEFINED.equals(contextual) ? baseline : contextual;
     }
 
     /**
@@ -130,10 +127,15 @@ public class Cvss31 implements SeverityScheme {
                 .collect(toMap(identity(), code -> requirement(proposal, catalog, code)));
     }
 
+    /**
+     * An abstained requirement weighs 1.0, which is the same neutral factor {@link #neutral()} applies: not declaring
+     * how critical the application is cannot change the score.
+     */
     private static BigDecimal requirement(ModelSeverityProposal proposal, Map<String, SchemeMetric> catalog,
                                           String code) {
-        return catalog.get(code)
-                .value(proposal.value(code))
+        String declared = proposal.value(code);
+        return NOT_DEFINED.equals(declared) ? ONE : catalog.get(code)
+                .value(declared)
                 .orElseThrow(() -> new IllegalArgumentException("unknown value for metric " + code))
                 .weight();
     }
@@ -168,12 +170,21 @@ public class Cvss31 implements SeverityScheme {
                 .orElseThrow();
     }
 
+    /**
+     * The published Environmental form: the baseline vector followed by the contextual values, where a metric that
+     * also exists in the baseline is prefixed with M so both readings fit one string without colliding. Emitting the
+     * standard spelling is what lets any CVSS calculator reproduce both scores from this field alone.
+     */
     private static String contextualVector(Map<String, String> baseline, ModelSeverityProposal proposal) {
         String contextual = proposal.choices().stream()
-                .map(choice -> choice.metric() + ASSIGNMENT + choice.value())
+                .map(choice -> environmental(choice.metric()) + ASSIGNMENT + choice.value())
                 .reduce((left, right) -> left + SEPARATOR + right)
                 .orElseThrow();
         return vector(baseline) + SEPARATOR + contextual;
+    }
+
+    private static String environmental(String code) {
+        return BASE_CODES.contains(code) ? MODIFIED_PREFIX + code : code;
     }
 
     /**

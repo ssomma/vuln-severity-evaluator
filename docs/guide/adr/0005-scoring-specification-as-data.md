@@ -22,8 +22,9 @@ recompilación para agregar una constante que no cambia ninguna lógica.
 La especificación y los catálogos son **filas**, no constantes.
 
 - `scheme_metric` + `scheme_metric_value`: qué métricas existen para un esquema, qué valores admite cada una y cuánto
-  pesa cada valor. Las métricas modificadas apuntan a la base que sobreescriben y **toman prestados sus pesos**, así
-  que ningún coeficiente se guarda dos veces.
+  pesa cada valor. **Una fila por métrica, no una por pasada de scoring**: la misma métrica se puntúa con el valor del
+  vector baseline y con el que el modelo derivó del contexto, así que ningún coeficiente ni valor admitido se guarda
+  dos veces.
 - `context_attribute` + `context_suggestion`: el vocabulario del contexto declarado, el significado que lee el
   modelo, y qué valores de métrica argumenta cada atributo.
 
@@ -36,10 +37,19 @@ entradas: no toca datasource, y se testea sin base. Quien lee el catálogo es el
 **El modelo determinista se quedó sin tabla de mapeo propia.** Cada atributo del catálogo declara qué métricas
 argumenta, así que el stub solo recolecta sugerencias. La inferencia dejó de ser código.
 
+**Lo que es sintaxis del esquema se quedó en código, no bajó a la base.** Dos cosas parecían dato y no lo son: la
+abstención `X`, que aplica a toda métrica por construcción y no pertenece a ninguna tabla de pesos, y el prefijo `M`
+de las métricas Environmental de CVSS, que es el formato del vector publicado. Ambas viven en `Cvss31` junto al
+separador y al asignador del vector. El criterio: la tabla de la especificación es dato, la gramática con que se
+escribe es del esquema.
+
 ## Consecuencias
 
-- **Bueno:** `Cvss31` pasó de ~600 líneas y doce tipos anidados a ~230 con un único record privado. Lo que queda son
+- **Bueno:** `Cvss31` pasó de ~600 líneas y doce tipos anidados a ~260 con un único record privado. Lo que queda son
   las fórmulas de la especificación, que es lo que debería estar en una clase llamada así.
+- **Bueno:** el catálogo quedó en 11 métricas y 31 valores. Modelar cada métrica dos veces —una con los pesos, otra
+  con el vocabulario— costaba 19 filas, 74 valores (36 de ellos con peso cero que nunca se leían) y un puntero entre
+  ambas mitades para volver a unirlas al puntuar.
 - **Bueno:** los vectores oficiales de la spec ahora **validan también el seed**. Un peso mal cargado falla un golden
   case en vez de correr todos los scores una décima.
 - **Bueno:** el texto de guía del prompt vive junto a los valores que admite. Antes eran dos lugares que podían

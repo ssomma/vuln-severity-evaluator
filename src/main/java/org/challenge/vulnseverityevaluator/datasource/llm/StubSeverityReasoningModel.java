@@ -14,6 +14,7 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toMap;
 import static org.challenge.vulnseverityevaluator.domain.model.MetricChoice.createMetricChoice;
 import static org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProposal.createModelSeverityProposal;
+import static org.challenge.vulnseverityevaluator.domain.model.SchemeMetric.NOT_DEFINED;
 
 /**
  * Deterministic stand in for the language model, active in the {@code local} profile and in tests.
@@ -31,7 +32,6 @@ public class StubSeverityReasoningModel implements SeverityReasoningModel {
     static final String IDENTIFIER = "stub-deterministic";
     static final String PROMPT_VERSION = "stub-v1";
 
-    private static final String NOT_DEFINED = "X";
     private static final String DERIVED_BASELINE_VECTOR = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H";
     private static final String SUMMARY =
             "Deterministic local evaluation derived from the declared context, without a language model.";

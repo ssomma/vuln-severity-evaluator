@@ -13,9 +13,9 @@ Términos del dominio y de la arquitectura de **vuln-severity-evaluator**.
 | **Delta** | La diferencia entre ambos. Lo que la contextualización aportó, y lo que se puede discutir |
 | **Vector** | La representación textual de las métricas de las que sale un score (`CVSS:3.1/AV:N/...`). Viaja con el score para que un revisor pueda recomputarlo |
 | **Esquema de scoring** (`SeverityScheme`) | El sistema que traduce métricas a un número. Hoy CVSS v3.1; la aplicación no depende de cuál sea |
-| **Vocabulario** | El conjunto cerrado de métricas contextuales y valores admitidos de un esquema. Define a la vez qué se le pide al modelo y qué se le acepta |
-| **Métrica base / contextual** | Las base describen la vulnerabilidad; las contextuales, cómo se manifiesta en una aplicación concreta |
-| **Not Defined (`X`)** | Abstención: el contexto no da evidencia sobre esa métrica, y se conserva el valor base. Preferible a adivinar |
+| **Vocabulario** | El conjunto cerrado de métricas de un esquema y los valores que admite cada una. Define a la vez qué se le pide al modelo y qué se le acepta |
+| **Métrica** | Una dimensión de la severidad (alcance del ataque, impacto en confidencialidad, criticidad de la aplicación). Existe **una sola vez** en el catálogo y se lee dos veces: el valor que trae el vector baseline y el que el modelo deriva del contexto declarado |
+| **Not Defined (`X`)** | Abstención: el contexto no da evidencia sobre esa métrica, y se conserva el valor base. Preferible a adivinar. No es un valor del catálogo: aplica a toda métrica por construcción |
 | **Propuesta** (`ModelSeverityProposal`) | Lo que responde el modelo: un valor por métrica con su rationale. Se valida al construirse |
 | **Procedencia** (`Provenance`) | Bajo qué condiciones se produjo la evaluación: modelo, versión de prompt, origen del contexto y del baseline, confianza y si requiere revisión |
 | **Confianza** | Cuánto pesa la evaluación. Baja si el baseline lo derivó el modelo, o si el modelo se abstuvo en la mayoría de las métricas |

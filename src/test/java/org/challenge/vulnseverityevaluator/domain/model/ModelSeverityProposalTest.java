@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.challenge.vulnseverityevaluator.domain.model.MetricChoice.createMetricChoice;
 import static org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProposal.createModelSeverityProposal;
-import static org.challenge.vulnseverityevaluator.domain.service.SpecificationCatalog.vocabulary;
 
 /**
  * The gate between the language model and the domain. Every case here is an answer a real model can plausibly give,
@@ -38,7 +37,7 @@ class ModelSeverityProposalTest {
 
     @BeforeEach
     void setUp() {
-        vocabulary = vocabulary(catalog.specification(scheme.id()));
+        vocabulary = catalog.specification(scheme.id());
     }
 
     @Test
