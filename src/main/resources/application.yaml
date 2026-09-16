@@ -1,6 +1,45 @@
 spring:
   application:
     name: vuln-severity-evaulator
+  profiles:
+    # Running with no arguments runs locally: deterministic model, in memory database, no credentials needed.
+    default: local
+  jpa:
+    open-in-view: false
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        model: gpt-4o-mini
+        temperature: 0.0
+  web:
+    error:
+      include-stacktrace: never
+      include-message: never
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+---
+# Local profile: an ephemeral in memory database, created from the entities and seeded with the scoring
+# specification and the context catalog. This is the setup that makes the service runnable and reviewable without
+# credentials; a real deployment points at its own database, where the catalog is data that already exists.
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:h2:mem:evaluations;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: embedded
+      data-locations: classpath:sql/data.sql
+  jpa:
+    # The seed has to run after Hibernate creates the schema, not before it.
+    defer-datasource-initialization: true
+    hibernate:
+      # The database is ephemeral, so the schema is derived from the entities. A real deployment needs versioned
+      # migrations instead: see docs/guide/architecture/data-model.md.
+      ddl-auto: create-drop

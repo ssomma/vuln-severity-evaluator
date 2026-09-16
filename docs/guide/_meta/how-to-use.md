@@ -35,16 +35,21 @@ sincronizada con el código.
 
 | Tengo... | Va en... |
 |----------|----------|
+| El diseño global de la solución: drivers, alcance, flujo, riesgos | `docs/guide/add/README.md` |
 | Una propuesta que necesita debate del equipo | `docs/guide/rfcs/NNNN-<slug>.md` |
 | Una decisión arquitectónica ya tomada | `docs/guide/adr/NNNN-<slug>.md` |
 | Cómo está esquematizada la app (capas, wiring) | `docs/guide/architecture/README.md` |
 | Cómo funciona el sistema de capas y por qué | `docs/guide/architecture/layering-model.md` |
 | Un término del dominio que hay que definir | `docs/guide/domain/glossary.md` |
 | Contexto de negocio del dominio | `docs/guide/domain/README.md` |
+| El contrato HTTP | `docs/guide/architecture/endpoints.md` |
+| Cómo se persiste el dominio | `docs/guide/architecture/data-model.md` |
+| Dónde se usa IA, sus riesgos y sus límites | `docs/guide/architecture/ai-usage-and-limits.md` |
+| Cómo se investigó una decisión | `docs/guide/_meta/research-log.md` |
 | Cómo operar / debugear en producción | `docs/guide/runbooks/NNNN-<slug>.md` |
 | Post-incidente con lecciones aprendidas | `docs/guide/postmortems/PM-NNNN-<slug>.md` |
 | Una convención de código que hay que **enforcar** | `src/test/java/.../ArchitectureTest.java` o `MethodComplexityTest.java` |
-| Stack, versiones, getting started | `docs/guide/README.md` (no hay `README.md` en la raíz del repo todavía) |
+| Stack, versiones, getting started | `docs/guide/README.md`; el `README.md` de la raíz es la puerta de entrada corta |
 
 ---
 
@@ -106,7 +111,7 @@ Detalle en [Arquitectura](/architecture/) y el
 2. **`docs/guide/` es el estado vivo** — documenta cómo funciona el sistema HOY, no la historia (eso va en ADRs y postmortems).
 3. **Las convenciones se enforcan, no se piden por favor** — si una regla importa, vive en un guardrail de `src/test/`, no solo en prosa.
 4. **ADRs no se editan post-accepted** — si una decisión cambia, se crea una nueva ADR que la reemplaza.
-5. **Sin stubs vacíos** — si no hay contenido real, no crear el archivo; mejor un índice de sección (por eso todavía no existen `architecture/endpoints.md` ni `architecture/data-model.md`).
+5. **Sin stubs vacíos** — si no hay contenido real, no crear el archivo; mejor un índice de sección. `endpoints.md`, `data-model.md` y `ai-usage-and-limits.md` se crearon recién cuando hubo endpoint, entidades y un modelo integrado que documentar.
 6. **Los diagramas son parte del código** — un diagrama desactualizado es peor que no tenerlo.
 7. **Si dudás dónde va algo** — usá la tabla de decisión de arriba; si sigue sin quedar claro, abrilo en el PR.
 

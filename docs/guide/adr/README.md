@@ -8,7 +8,12 @@ solo se puede crear una nueva ADR que la reemplace o anule.
 
 | ID | Título | Status | Fecha |
 |----|--------|--------|-------|
-| *(sin ADRs aún)* | — | — | — |
+| [0001](/adr/0001-cvss-31-behind-a-scheme-interface) | Adoptar CVSS v3.1 Base+Environmental detrás de una interfaz de esquema | accepted | 2026-09-15 |
+| [0002](/adr/0002-language-model-as-datasource) | El modelo de lenguaje es un datasource, no un motor de decisión | accepted | 2026-09-15 |
+| [0003](/adr/0003-caller-declared-application-context) | El contexto de la aplicación lo declara el caller | accepted | 2026-09-15 |
+| [0004](/adr/0004-responsibility-per-domain) | Granularidad del modelo por dominio, no por clase | accepted | 2026-09-15 |
+| [0005](/adr/0005-scoring-specification-as-data) | La especificación de scoring y los catálogos son dato en base | accepted | 2026-09-15 |
+| [0006](/adr/0006-determinism-by-persistence) | Determinismo por persistencia, no por caché | accepted | 2026-09-15 |
 
 ---
 
