@@ -1,99 +1,75 @@
 # vuln-severity-evaluator — Documentación
 
-Servicio backend en **Java / Spring Boot** para evaluar la **severidad de
-vulnerabilidades**, con **Spring AI** (OpenAI) como motor de razonamiento asistido.
+Servicio backend en **Java / Spring Boot** que evalúa **qué tan grave es una vulnerabilidad para una aplicación
+concreta**, con un modelo de lenguaje como soporte del análisis.
 
-Este repositorio es **greenfield**: por ahora solo existen las convenciones de
-capas y los guardrails de mantenibilidad (tests de fitness), sin Services ni
-endpoints implementados todavía. Esta documentación describe ese esqueleto y
-debe crecer junto con el primer subdominio real que se implemente.
+El CVSS Base Score describe la vulnerabilidad en abstracto. Este servicio la re-puntúa según el contexto declarado de
+la aplicación afectada, y deja registrado por qué.
 
----
-
-## Stack Tecnológico
-
-| Componente | Tecnología | Versión |
-|-----------|-----------|---------|
-| Lenguaje | Java | — |
-| Build | Gradle (wrapper) | — |
-| Framework | Spring Boot | **4.1.1** |
-| Web | `spring-boot-starter-webmvc` | (gestionado por Spring Boot) |
-| Persistencia | `spring-boot-starter-data-jpa` | (gestionado por Spring Boot) |
-| IA / razonamiento | Spring AI · `spring-ai-starter-model-openai` | **2.0.1** (BOM) |
-| Arquitectura (fitness tests) | ArchUnit | 1.5.0 |
-| Complejidad (fitness tests) | JavaParser | 3.23.1 |
-| Tests | JUnit | 6.0.0 |
-
----
-
-## Cómo está esquematizada la app
-
-El árbol de capas está **definido y enforced por `ArchitectureTest`**
-(`src/test/java/org/challenge/vulnseverityevaluator/ArchitectureTest.java`),
-aunque todavía no hay clases reales ocupando la mayoría de esas capas.
-
-```mermaid
-graph TD
-    APP["org.challenge<br/>Application"] --> CONFIG["configuration<br/>Configuration"]
-    CONFIG --> CTRL["presentation.controller<br/>Controller"]
-    CONFIG --> SVC["domain.service<br/>Service"]
-    CONFIG --> REPO["datasource.repository<br/>Repository"]
-    CTRL --> SVC
-    SVC --> REPO
-    SVC --> MODEL["domain.model<br/>Model"]
-    REPO --> MODEL
-    CTRL --> INFRA["infrastructure<br/>Infrastructure"]
-    SVC --> INFRA
-    REPO --> INFRA
-
-    classDef core fill:#e8f5e9,stroke:#2e7d32;
-    class SVC,MODEL core;
+```
+CVE-2021-44228 (Log4Shell), mismo vector base:
+  checkout-api    internet-facing, PII, Tier 1  →  10.0 CRITICAL
+  batch-reporter  aislada, público,   Tier 3    →   7.6 HIGH  (delta -2.4)
 ```
 
-- **Application** (`org.challenge`) — paquete raíz; punto de ensamblaje/arranque.
-- **Configuration** (`..configuration..`) — beans `@Configuration`; capa de wiring, no puede ser accedida por ninguna otra capa.
-- **Controller** (`..presentation.controller..`) — endpoints HTTP (`@Controller`), solo puede ser accedida por `Configuration`.
-- **Service** (`..domain.service..`) — lógica de negocio (`@Service`).
-- **Model** (`..domain.model..`) — entidades (`@Entity`), sin dependencias hacia el resto del dominio.
-- **Repository** (`..datasource.repository..`) — acceso a datos (`@Repository`).
-- **Infrastructure** (`..infrastructure..`) — helpers transversales.
+---
 
-Detalle completo, matriz de dependencias y reglas de anotación en
-[Arquitectura](/architecture/) y el [Modelo de capas](/architecture/layering-model).
+## Por dónde empezar
+
+| Documento | Qué responde |
+|---|---|
+| [**ADD**](/add/) | El diseño de la solución completo: drivers, alcance, flujo, seguridad, riesgos abiertos |
+| [Uso de IA y sus límites](/architecture/ai-usage-and-limits) | Dónde se usa IA, dónde deliberadamente no, y qué puede salir mal |
+| [ADRs](/adr/) | Las seis decisiones, cada una con sus alternativas descartadas |
+| [Endpoints](/architecture/endpoints) | El contrato HTTP y los criterios que fijan su firma |
+| [Arquitectura](/architecture/) | Capas, residencia de anotaciones y guardrails |
+| [Dominio](/domain/) | Qué se evalúa, con qué insumos y qué confiabilidad tiene cada uno |
+| [Proceso de investigación](/_meta/research-log) | Qué hubo que mirar y qué cambió por haberlo mirado |
 
 ---
 
-## Navegación
+## La decisión que sostiene todo lo demás
 
-| Sección | Descripción |
-|---------|-------------|
-| [Arquitectura](/architecture/) | Esquema de la app, capas y constraints de mantenibilidad |
-| [Modelo de capas](/architecture/layering-model) | Cómo funciona el sistema de capas y por qué |
-| [ADRs](/adr/) | Decisiones arquitectónicas tomadas |
-| [RFCs](/rfcs/) | Propuestas en debate |
-| [Dominio](/domain/) | Contexto de negocio de evaluación de severidad de vulnerabilidades |
-| [Glosario](/domain/glossary) | Términos del dominio y de la arquitectura |
-| [Runbooks](/runbooks/) | Procedimientos operacionales |
-| [Postmortems](/postmortems/) | Incidentes y lecciones aprendidas |
-| [Cómo usar esta doc](/_meta/how-to-use) | Tabla de decisión + sync checklist |
+> **El modelo nunca devuelve un número.** Devuelve elecciones de métricas de un vocabulario cerrado, con su
+> justificación. La aritmética la hace el dominio, de forma determinista y verificada contra la especificación
+> publicada.
+
+Y como un LLM tampoco es una fuente determinista, una request idéntica se responde con **la evaluación ya
+registrada** en vez de volver a preguntar. El servicio es determinista aunque aquello de lo que depende no lo sea.
 
 ---
 
-## Convenciones para IA y humanos
+## Cómo correrlo
 
-Las reglas de arquitectura, nomenclatura de tests y complejidad son de
-cumplimiento **obligatorio** y están enforced por los tests de fitness en
-`src/test/java/org/challenge/vulnseverityevaluator/`
-(`ArchitectureTest.java`, `MethodComplexityTest.java`). Todavía no existen
-`AGENTS.md` / `CLAUDE.md` en este repo — si se agregan, deben referenciar estos
-mismos tests como fuente de verdad en lugar de duplicar las reglas en prosa.
+El perfil por defecto es `local`: modelo determinista, base en memoria, sin API key ni red.
 
 ```bash
-./gradlew build
+./gradlew bootRun
 ./gradlew test
 ```
 
 ---
 
-> Esta documentación se mantiene viva. Si algo está desactualizado, actualizarlo
-> es parte del ciclo de desarrollo. Ver [cómo usar esta documentación](/_meta/how-to-use).
+## Stack
+
+| Componente | Tecnología | Versión |
+|-----------|-----------|---------|
+| Framework | Spring Boot | 4.1.1 |
+| IA | Spring AI · `spring-ai-starter-model-openai` | 2.0.1 |
+| Web | `spring-boot-starter-webmvc` | gestionado |
+| Persistencia | `spring-boot-starter-data-jpa` + H2 | gestionado |
+| Validación | `spring-boot-starter-validation` | gestionado |
+| Arquitectura (fitness tests) | ArchUnit | 1.5.0 |
+| Complejidad (fitness tests) | JavaParser | 3.27.0 |
+| Tests | JUnit | 6.0.0 |
+
+---
+
+## Convenciones
+
+Las reglas de capas, residencia de anotaciones, nomenclatura de tests y complejidad son de cumplimiento
+**obligatorio** y están enforced por los tests de fitness en `src/test/java/org/challenge/vulnseverityevaluator/`.
+No son convenciones de honor: una violación falla el build.
+
+> Esta documentación se mantiene viva. Si algo está desactualizado, actualizarlo es parte del ciclo de desarrollo.
+> Ver [cómo usar esta documentación](/_meta/how-to-use).

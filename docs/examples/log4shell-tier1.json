@@ -1,0 +1,17 @@
+{
+  "vulnerability": {
+    "identifier": "CVE-2021-44228",
+    "description": "Apache Log4j2 JNDI features used in configuration, log messages and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled.",
+    "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
+  },
+  "application": {
+    "name": "checkout-api",
+    "risk_profile": {
+      "exposure": "INTERNET_FACING",
+      "data_classification": "PII",
+      "business_criticality": "TIER_1"
+    },
+    "runtime": ["JAVA", "SPRING_BOOT"],
+    "compensating_controls": []
+  }
+}

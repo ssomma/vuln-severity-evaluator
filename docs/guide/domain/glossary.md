@@ -1,18 +1,28 @@
 # Glosario
 
 Términos del dominio y de la arquitectura de **vuln-severity-evaluator**.
-Es un glosario semilla: expandir con cada término nuevo que introduzca un
-subdominio real (ver [sync checklist](/_meta/how-to-use)).
 
 ---
 
 ## Dominio — evaluación de severidad
 
-> Todavía no hay subdominios implementados, por lo que no hay términos de
-> negocio confirmados. Completar esta sección junto con
-> [Dominio → Cómo documentar el primer subdominio real](/domain/) en cuanto
-> se implemente el primer `Service` (por ejemplo, definiciones como *severidad*,
-> *hallazgo*, *CVSS*, *CVE*, según aplique al diseño final).
+| Término | Definición |
+|---------|------------|
+| **Baseline** | El score de la vulnerabilidad en abstracto, sin contexto. Viene del vector que manda el caller o, si no lo manda, lo deriva el modelo |
+| **Contextual** | El score después de aplicar el contexto declarado de la aplicación. Es el producto real del servicio |
+| **Delta** | La diferencia entre ambos. Lo que la contextualización aportó, y lo que se puede discutir |
+| **Vector** | La representación textual de las métricas de las que sale un score (`CVSS:3.1/AV:N/...`). Viaja con el score para que un revisor pueda recomputarlo |
+| **Esquema de scoring** (`SeverityScheme`) | El sistema que traduce métricas a un número. Hoy CVSS v3.1; la aplicación no depende de cuál sea |
+| **Vocabulario** | El conjunto cerrado de métricas contextuales y valores admitidos de un esquema. Define a la vez qué se le pide al modelo y qué se le acepta |
+| **Métrica base / contextual** | Las base describen la vulnerabilidad; las contextuales, cómo se manifiesta en una aplicación concreta |
+| **Not Defined (`X`)** | Abstención: el contexto no da evidencia sobre esa métrica, y se conserva el valor base. Preferible a adivinar |
+| **Propuesta** (`ModelSeverityProposal`) | Lo que responde el modelo: un valor por métrica con su rationale. Se valida al construirse |
+| **Procedencia** (`Provenance`) | Bajo qué condiciones se produjo la evaluación: modelo, versión de prompt, origen del contexto y del baseline, confianza y si requiere revisión |
+| **Confianza** | Cuánto pesa la evaluación. Baja si el baseline lo derivó el modelo, o si el modelo se abstuvo en la mayoría de las métricas |
+| **Advisory** | El resultado es soporte a una decisión humana, nunca autorización para remediar automáticamente |
+| **Huella** (`fingerprint`) | Identidad de los insumos de una evaluación. Permite responder una request idéntica con el resultado ya registrado |
+| **Contexto declarado** | Exposición, clasificación de datos, criticidad, runtime y controles compensatorios que el caller afirma sobre su aplicación |
+| **Catálogo** | Los valores admitidos del contexto y la especificación del esquema, persistidos en base en vez de escritos como código |
 
 ---
 
@@ -20,13 +30,9 @@ subdominio real (ver [sync checklist](/_meta/how-to-use)).
 
 | Término | Definición |
 |---------|------------|
-| **Layer / capa** | Una de: `Application`, `Configuration`, `Controller`, `Service`, `Repository`, `Model`, `Infrastructure`, definidas en `ArchitectureTest`. |
-| **Application** | Paquete raíz `org.challenge`; capa de ensamblaje/arranque. |
-| **Configuration** | Beans `@Configuration`; capa de wiring, no accedida por ninguna otra capa. |
-| **Controller** | Endpoint HTTP `@Controller` en `presentation.controller`. |
-| **Service** | Clase de lógica de negocio `@Service` en `domain.service`. |
-| **Repository** | Clase de acceso a datos `@Repository` en `datasource.repository`. |
-| **Model** | Entidad JPA `@Entity` en `domain.model`. |
-| **Infrastructure** | Helpers transversales, sin dependencias internas propias. |
-| **Fitness test / guardrail** | Test en `src/test/` que enforcea capas, anotaciones, naming o complejidad y falla el build si se violan (`ArchitectureTest`, `MethodComplexityTest`). |
-| **Cyclomatic complexity budget** | Máximo de métodos (5) que pueden superar un umbral de complejidad (10) en todo `src/main` antes de que falle el build. |
+| **Layer / capa** | Una de: `Application`, `Configuration`, `Controller`, `Service`, `Repository`, `Llm`, `Model`, `Infrastructure`, definidas en `ArchitectureTest` |
+| **Llm** | Capa propia para `datasource/llm`. Existe para que el guardrail distinga estructuralmente un dato de la infraestructura propia de una opinión de un modelo |
+| **Datasource** | Dos familias: `repository`, donde la aplicación es fuente directa, y `llm`, donde no |
+| **Fitness test / guardrail** | Test en `src/test/` que enforcea capas, anotaciones, naming o complejidad y falla el build (`ArchitectureTest`, `MethodComplexityTest`) |
+| **Presupuesto de complejidad** | Cinco métricas con tolerancia cero: ciclomática ≤ 5, nesting ≤ 3, ≤ 5 parámetros, ≤ 32 statements, ≤ 64 líneas por método |
+| **Responsabilidad por dominio** | Criterio de granularidad: una clase cubre un dominio delimitado y absorbe lo suyo; lo compartido nunca va anidado |

@@ -31,7 +31,8 @@ org.challenge.vulnseverityevaluator
 │   └── service/                   → contratos (interfaces) de los casos de uso
 │       └── impl/                  → implementaciones de esos contratos
 ├── datasource/
-│   └── repository/                → contratos e implementaciones de acceso a datos
+│   ├── llm/                       → origen de datos: el modelo de lenguaje
+│   └── repository/                → origen de datos: la infraestructura propia
 └── infrastructure/                → utilidades transversales (errores, métricas, serialización)
 ```
 
@@ -42,10 +43,13 @@ org.challenge.vulnseverityevaluator
 | `Controller` | `..presentation.controller..` | Entrada HTTP, traduce request/response |
 | `Model` | `..domain.model..` | Entidades y VOs del dominio |
 | `Service` | `..domain.service..` | Contratos e implementaciones de los casos de uso |
-| `Repository` | `..datasource.repository..` | Persistencia y clientes salientes |
+| `Llm` | `..datasource.llm..` | El modelo de lenguaje, tratado como origen de datos |
+| `Repository` | `..datasource.repository..` | Persistencia: aquello de lo que la aplicación es fuente directa |
 | `Infrastructure` | `..infrastructure..` | Cross-cutting: errores, métricas, serialización, validación |
 
-Este repositorio está en una etapa temprana: hoy solo existen `Main.java` y las clases de test de arquitectura, por lo que aún no hay clases reales bajo `presentation`, `domain` ni `datasource`. Las secciones siguientes describen cómo debe poblarse cada paquete a medida que se agregue código de negocio.
+Las capas están pobladas: hay un caso de uso completo, su esquema de scoring, dos familias de datasource y los catálogos. Lo que sigue describe las reglas que gobiernan cómo crece ese código.
+
+**Dos familias de datasource, no una.** `datasource/repository` es información de la que la aplicación es fuente directa; `datasource/llm` es una opinión de un modelo. Tienen confiabilidad distinta, así que son **capas distintas** con sus propias reglas de acceso, y el guardrail lo verifica en cada build.
 
 ## 3. Responsabilidad de cada capa
 
@@ -152,6 +156,7 @@ Define las 7 capas con `layeredArchitecture().consideringAllDependencies()` y ap
 - `Infrastructure.mayOnlyBeAccessedByLayers(Application, Configuration, Controller, Repository, Service)` — es transversal, pero **`Model` no figura en esta lista**: el modelo no debe depender hacia abajo de infraestructura.
 - `Model.mayOnlyBeAccessedByLayers(Application, Configuration, Controller, Repository, Service)` — cualquier capa de negocio puede usar el modelo de dominio.
 - `Repository.mayOnlyBeAccessedByLayers(Configuration, Service)` — **un controller no puede llamar directo a un repository**; debe pasar por `Service`.
+- `Llm.mayOnlyBeAccessedByLayers(Configuration, Service)` — igual que `Repository`: el modelo de lenguaje solo se alcanza desde el caso de uso.
 - `Service.mayOnlyBeAccessedByLayers(Configuration, Controller)` — un repository no puede depender de un service (evita ciclos hacia arriba).
 
 Esto convierte en un chequeo automático la cadena descrita en la sección 5: `Controller → Service → Repository/Model`, y prohíbe explícitamente los saltos indebidos (Controller → Repository directo, Repository → Service, cualquiera → Configuration).
@@ -176,7 +181,8 @@ Además de las reglas de capas, el archivo valida que todo método `@Test` siga 
 
 ### 6.4 Consideraciones prácticas
 
-- Todas las reglas usan `allowEmptyShould(true)`: **pasan aunque todavía no exista ninguna clase en la capa** (relevante hoy, porque este repositorio recién tiene `Main.java`). Esto permite incorporar la arquitectura de forma incremental sin romper el build, pero también significa que estas reglas **no validan nada de manera efectiva hasta que se agregue código real** en `presentation`, `domain` o `datasource`.
+- Todas las reglas usan `allowEmptyShould(true)`, lo que permitió incorporar la arquitectura de forma incremental. Ya no es relevante: las capas están pobladas y las reglas validan código real.
+- Las reglas de residencia de `@Controller`, `@Service` y `@Repository` usan `areMetaAnnotatedWith`, no `areAnnotatedWith`: la versión directa **no detecta `@RestController`**, que es meta-anotación de `@Controller`. `@Configuration` se verifica directa a propósito, porque `@SpringBootApplication` la lleva como meta-anotación y la regla meta exigiría mover el composition root.
 - La verificación correcta de una regla de arquitectura incluye un **chequeo negativo**: introducir temporalmente una dependencia prohibida (p. ej. un `Repository` inyectando un `Service`), confirmar que `ArchitectureTest` falla, y revertir el cambio. Esto se recomienda al agregar o modificar cualquier regla de capas.
 
 ## 7. Alcance excluido: procesamiento batch
