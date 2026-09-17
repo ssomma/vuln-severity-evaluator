@@ -32,7 +32,7 @@ import static org.springframework.web.servlet.HandlerMapping.BEST_MATCHING_PATTE
  * <li>{@code evaluation.id()} — unbounded by definition. An evaluation is retrieved by id, not grouped by it.</li>
  * <li>The <em>rejected</em> context code — the caller controls it and by definition it is not in the catalog, which
  * is why {@link EventMetrics#collectEventContextValueRejected} carries only the kind.</li>
- * <li>{@code context.name()} — internal inventory, which {@code SpringAiSeverityReasoningModel} deliberately
+ * <li>{@code context.name()} — internal inventory, which {@code LLMSeverityReasoningModel} deliberately
  * withholds from the model provider. Emitting it to an external observability backend would reintroduce exactly what
  * that class avoids.</li>
  * <li>The runtime and control sets joined into a string — combinatorial cardinality. They are emitted as counts, and
