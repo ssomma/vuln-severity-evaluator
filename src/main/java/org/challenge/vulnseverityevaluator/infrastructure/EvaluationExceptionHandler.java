@@ -8,6 +8,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.net.URI;
 
+import static org.challenge.vulnseverityevaluator.infrastructure.metric.ApplicationMetricCollector.EventMetrics.collectEventEvaluationFailed;
+import static org.challenge.vulnseverityevaluator.infrastructure.metric.ApplicationMetricCollector.EventMetrics.collectEventModelAnswerRejected;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -15,8 +17,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 /**
  * Turns failures into RFC 7807 problem responses.
  * <p>
- * It handles standard exception types rather than custom ones, which is what keeps this layer free of any dependency
- * on the domain — and the domain free of any dependency on this one. The distinction that matters survives anyway,
+ * It handles standard exception types rather than custom ones, which is what keeps this handler free of any
+ * dependency on the domain — and the domain free of any dependency on it. The distinction that matters survives anyway,
  * because the two conditions are genuinely different kinds of failure:
  * <ul>
  * <li>{@link IllegalArgumentException} — the caller sent something invalid: a malformed vector, a context value the
@@ -41,12 +43,6 @@ public class EvaluationExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String UNUSABLE_DETAIL =
             "The reasoning model did not produce a usable answer. No severity was produced; retrying is safe.";
 
-    private final EvaluationMetrics metrics;
-
-    public EvaluationExceptionHandler(EvaluationMetrics metrics) {
-        this.metrics = metrics;
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleInvalidRequest(IllegalArgumentException exception) {
         logger.info("evaluation request rejected: {}", exception.getMessage());
@@ -56,11 +52,12 @@ public class EvaluationExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * An unusable model answer is counted here, not just reported. A rising rejection rate is the earliest visible
      * symptom of model drift or of a prompt that no longer matches the vocabulary, and without the counter the
-     * failure is silent.
+     * failure is silent. Only the exception class becomes a dimension: the message usually carries the raw model
+     * answer.
      */
     @ExceptionHandler(IllegalStateException.class)
     public ProblemDetail handleUnusableAnswer(IllegalStateException exception) {
-        metrics.recordRejectedAnswer();
+        collectEventModelAnswerRejected(exception);
         logger.warn("model answer rejected: {}", exception.getMessage());
         return problem(BAD_GATEWAY.value(), MODEL_UNUSABLE, UNUSABLE_TITLE, UNUSABLE_DETAIL);
     }
@@ -71,6 +68,7 @@ public class EvaluationExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public ProblemDetail handleUnexpectedFailure(RuntimeException exception) {
+        collectEventEvaluationFailed(exception);
         logger.error("severity evaluation failed", exception);
         return problem(BAD_GATEWAY.value(), MODEL_UNUSABLE, UNUSABLE_TITLE, UNUSABLE_DETAIL);
     }

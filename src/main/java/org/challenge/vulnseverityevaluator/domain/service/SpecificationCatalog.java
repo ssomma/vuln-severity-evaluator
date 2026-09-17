@@ -12,11 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.BUSINESS_CRITICALITY;
-import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.COMPENSATING_CONTROL;
-import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.DATA_CLASSIFICATION;
-import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.EXPOSURE;
-import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.RUNTIME;
+import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.*;
+import static org.challenge.vulnseverityevaluator.infrastructure.metric.ApplicationMetricCollector.EventMetrics.collectEventContextValueRejected;
+import static org.challenge.vulnseverityevaluator.infrastructure.metric.ApplicationMetricCollector.WorkMetrics.collectWorkInputContextAttribute;
 
 /**
  * The catalogs the evaluation reads: the scoring specification and the admitted context values.
@@ -69,6 +67,21 @@ public class SpecificationCatalog {
         return attributes.findByKind(kind).stream()
                 .filter(attribute -> attribute.code().equals(code))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(kind + " value not admitted: " + code));
+                .map(SpecificationCatalog::resolved)
+                .orElseThrow(() -> rejected(kind, code));
+    }
+
+    private static ContextAttribute resolved(ContextAttribute attribute) {
+        collectWorkInputContextAttribute(attribute);
+        return attribute;
+    }
+
+    /**
+     * Only the kind becomes a dimension. The rejected code is caller controlled and by definition absent from the
+     * catalog, so it is not a bounded value; it stays in the exception message, which does reach the caller.
+     */
+    private static IllegalArgumentException rejected(Kind kind, String code) {
+        collectEventContextValueRejected(kind);
+        return new IllegalArgumentException(kind + " value not admitted: " + code);
     }
 }

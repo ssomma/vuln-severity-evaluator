@@ -1,19 +1,17 @@
 package org.challenge.vulnseverityevaluator.datasource.llm;
 
-import org.challenge.vulnseverityevaluator.domain.model.ContextAttribute;
-import org.challenge.vulnseverityevaluator.domain.model.MetricChoice;
-import org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProposal;
-import org.challenge.vulnseverityevaluator.domain.model.SchemeMetric;
-import org.challenge.vulnseverityevaluator.domain.model.Vulnerability;
+import org.challenge.vulnseverityevaluator.domain.model.*;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.joining;
 import static org.challenge.vulnseverityevaluator.domain.model.MetricChoice.createMetricChoice;
 import static org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProposal.createModelSeverityProposal;
+import static org.challenge.vulnseverityevaluator.infrastructure.metric.ApplicationMetricCollector.ResourceMetrics.collectResourceModelCall;
 
 /**
  * Asks a language model, through Spring AI, for the contextual metric values of the active scheme.
@@ -31,9 +29,17 @@ import static org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProp
  * The answer is mapped to a domain proposal that validates itself, so an answer outside the vocabulary fails here
  * rather than turning into a plausible looking score.
  */
-public class SpringAiSeverityReasoningModel implements SeverityReasoningModel {
+public class LLMSeverityReasoningModel implements SeverityReasoningModel {
 
     static final String PROMPT_VERSION = "contextual-severity-v1";
+
+    /**
+     * The two questions this datasource asks, measured apart: asking for a baseline vector means the anchor of the
+     * score was inferred instead of supplied, which is the weakest path of the system. They live here because this
+     * is the only class that makes the distinction.
+     */
+    private static final String PROPOSAL_OPERATION = "proposal";
+    private static final String BASELINE_VECTOR_OPERATION = "baseline_vector";
 
     private static final String SCHEME_PARAMETER = "schemeId";
     private static final String VOCABULARY_PARAMETER = "vocabulary";
@@ -48,7 +54,7 @@ public class SpringAiSeverityReasoningModel implements SeverityReasoningModel {
     private final String model;
     private final Prompts prompts;
 
-    public SpringAiSeverityReasoningModel(ChatClient chatClient, String model, Prompts prompts) {
+    public LLMSeverityReasoningModel(ChatClient chatClient, String model, Prompts prompts) {
         this.chatClient = chatClient;
         this.model = model;
         this.prompts = prompts;
@@ -57,7 +63,7 @@ public class SpringAiSeverityReasoningModel implements SeverityReasoningModel {
     @Override
     public ModelSeverityProposal propose(Vulnerability vulnerability, List<ContextAttribute> context,
                                          List<SchemeMetric> vocabulary, String schemeId) {
-        ProposalAnswer answer = chatClient.prompt()
+        ProposalAnswer answer = recorded(PROPOSAL_OPERATION, () -> chatClient.prompt()
                 .system(spec -> spec.text(prompts.contextualSystem())
                         .param(SCHEME_PARAMETER, schemeId)
                         .param(VOCABULARY_PARAMETER, renderedVocabulary(vocabulary)))
@@ -66,20 +72,35 @@ public class SpringAiSeverityReasoningModel implements SeverityReasoningModel {
                         .param(DESCRIPTION_PARAMETER, vulnerability.description())
                         .param(CONTEXT_PARAMETER, renderedContext(context)))
                 .call()
-                .entity(ProposalAnswer.class);
+                .entity(ProposalAnswer.class));
         return answer.toProposal(vocabulary);
     }
 
     @Override
     public String deriveBaselineVector(Vulnerability vulnerability, String schemeId) {
-        VectorAnswer answer = chatClient.prompt()
+        VectorAnswer answer = recorded(BASELINE_VECTOR_OPERATION, () -> chatClient.prompt()
                 .system(spec -> spec.text(prompts.baselineSystem()).param(SCHEME_PARAMETER, schemeId))
                 .user(spec -> spec.text(prompts.baselineUser())
                         .param(IDENTIFIER_PARAMETER, vulnerability.identifier())
                         .param(DESCRIPTION_PARAMETER, vulnerability.description()))
                 .call()
-                .entity(VectorAnswer.class);
+                .entity(VectorAnswer.class));
         return answer.vector();
+    }
+
+    /**
+     * Records the outcome of the provider call. The failure path counts too: a timeout or a quota rejection is what
+     * separates a failing provider from a failing service.
+     */
+    private <T> T recorded(String operation, Supplier<T> call) {
+        try {
+            T answer = call.get();
+            collectResourceModelCall(this, operation, true);
+            return answer;
+        } catch (RuntimeException exception) {
+            collectResourceModelCall(this, operation, false);
+            throw exception;
+        }
     }
 
     @Override

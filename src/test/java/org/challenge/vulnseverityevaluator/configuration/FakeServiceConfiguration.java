@@ -1,7 +1,6 @@
 package org.challenge.vulnseverityevaluator.configuration;
 
 import org.challenge.vulnseverityevaluator.domain.service.impl.FakeSeverityService;
-import org.challenge.vulnseverityevaluator.infrastructure.EvaluationMetrics;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -20,10 +19,5 @@ public class FakeServiceConfiguration {
     @Primary
     public FakeSeverityService fakeSeverityService() {
         return new FakeSeverityService();
-    }
-
-    @Bean
-    public EvaluationMetrics evaluationMetrics() {
-        return new EvaluationMetrics();
     }
 }
