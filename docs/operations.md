@@ -5,17 +5,24 @@ el servicio puede seguir respondiendo 201 y producir severidades incorrectas.
 
 ## Monitores
 
-| Señal | Qué significa | Por qué importa |
-|---|---|---|
-| **Tasa de rechazo de respuestas del modelo** | El modelo respondió fuera de su vocabulario | El síntoma **más temprano** de drift de modelo o de un prompt desactualizado. Un salto acá precede a resultados malos |
-| Tasa de 502 | El proveedor falla, agota cuota o excede timeout | El servicio no produce severidades; los consumidores quedan sin priorización |
-| Tasa de 400 | Los callers mandan contexto o vectores inválidos | Si sube de golpe, suele ser un integrador nuevo mal configurado |
-| Reutilizaciones por huella | Cuántas requests se respondieron sin llamar al modelo | Baja inesperada = más costo y menos determinismo: revisar si cambió el prompt o el modelo |
-| Latencia del endpoint | Dominada por la llamada al proveedor | — |
-| Proporción de `MODEL_DERIVED` | Callers que no mandan el vector base | Cuanto más alta, más severidades apoyadas en una inferencia en vez de un dato |
-| Proporción de `confidence: LOW` | Evaluaciones poco respaldadas | Si crece, el contexto declarado está aportando poca evidencia |
+| Señal | Métrica | Qué significa | Por qué importa |
+|---|---|---|---|
+| **Tasa de rechazo de respuestas del modelo** | `event.model.answer.rejected` | El modelo respondió fuera de su vocabulario | El síntoma **más temprano** de drift de modelo o de un prompt desactualizado. Un salto acá precede a resultados malos |
+| Tasa de 502 | `resource.http.incoming.request` con `status:502`, y `event.evaluation.failed` para la causa | El proveedor falla, agota cuota o excede timeout | El servicio no produce severidades; los consumidores quedan sin priorización |
+| Tasa de 400 | `resource.http.incoming.request` con `status:400`, y `event.context.value.rejected` para la causa | Los callers mandan contexto o vectores inválidos | Si sube de golpe, suele ser un integrador nuevo mal configurado |
+| Reutilizaciones por huella | `work.input.evaluation.lookup` sobre `work.input.evaluation.request` | Cuántas requests se respondieron sin llamar al modelo | Baja inesperada = más costo y menos determinismo: revisar si cambió el prompt o el modelo |
+| Llamadas al modelo | `resource.model.call`, separadas por `operation` y `outcome` | Cuántas veces se preguntó al proveedor y con qué resultado | Distingue un proveedor que falla de un servicio que falla |
+| Proporción de `MODEL_DERIVED` | `work.process.baseline.derived`, o la dimensión `baseline_source` | Callers que no mandan el vector base | Cuanto más alta, más severidades apoyadas en una inferencia en vez de un dato |
+| Proporción de `confidence: LOW` | `work.output.evaluation.recorded` con `confidence:LOW` | Evaluaciones poco respaldadas | Si crece, el contexto declarado está aportando poca evidencia |
+| Distribución de ratings | `work.process.severity.assessed`, y `event.severity.rating.moved` para los cruces de banda | Cuánto mueve el contexto declarado a la severidad base | Con una mezcla de entrada estable, un corrimiento es lo más cerca que se llega a detectar drift del lado contextual |
 
-Los tres primeros contadores los expone `EvaluationMetrics`.
+Todas se emiten como líneas de log en el logger **`application.metric`**, con el formato
+`<tag> nombre:valor nombre:valor`. El inventario completo de tags y dimensiones está en `MetricUtils`, y qué emite
+cada una en `ApplicationMetricCollector`.
+
+El prefijo del tag dice qué tipo de pregunta responde: `work.` es el flujo que el servicio ejecuta, `event.` es una
+anomalía de negocio, `resource.` es una interacción con algo externo. La distinción que más importa es la última:
+un proveedor que responde 500 es `resource`, un proveedor que responde 200 con un cuerpo inutilizable es `event`.
 
 ## Lo que ningún monitor detecta
 

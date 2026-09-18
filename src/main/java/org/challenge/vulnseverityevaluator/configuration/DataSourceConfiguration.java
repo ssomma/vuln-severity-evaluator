@@ -1,9 +1,9 @@
 package org.challenge.vulnseverityevaluator.configuration;
 
 import jakarta.annotation.PostConstruct;
+import org.challenge.vulnseverityevaluator.datasource.llm.LLMSeverityReasoningModel;
+import org.challenge.vulnseverityevaluator.datasource.llm.LLMSeverityReasoningModel.Prompts;
 import org.challenge.vulnseverityevaluator.datasource.llm.SeverityReasoningModel;
-import org.challenge.vulnseverityevaluator.datasource.llm.SpringAiSeverityReasoningModel;
-import org.challenge.vulnseverityevaluator.datasource.llm.SpringAiSeverityReasoningModel.Prompts;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +51,6 @@ public class DataSourceConfiguration {
     @Bean
     public SeverityReasoningModel severityReasoningModel(ChatClient.Builder builder) {
         Prompts prompts = new Prompts(contextualSystem, contextualUser, baselineSystem, baselineUser);
-        return new SpringAiSeverityReasoningModel(builder.build(), model, prompts);
+        return new LLMSeverityReasoningModel(builder.build(), model, prompts);
     }
 }

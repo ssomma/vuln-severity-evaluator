@@ -63,7 +63,7 @@ dependencia cruzada que justificar.
 - **`domain/service`** — el comportamiento: `SeverityScheme` y `Cvss31`, `EvaluationPolicy` (confianza y revisión),
   `SpecificationCatalog` (especificación y vocabulario), y el caso de uso. Los dos primeros son `@Service`; los que
   presentation no consume directamente son `@Component`.
-- **`datasource/llm`** — el modelo: interfaz, implementación Spring AI e implementación determinista.
+- **`datasource/llm`** — el modelo: interfaz, implementación LLM (vía Spring AI) e implementación determinista.
 - **`datasource/repository`** — evaluaciones y los dos catálogos.
 - **`presentation/controller`** — un controller, un request y un response, que **reutilizan los tipos de dominio** en
   vez de espejarlos.

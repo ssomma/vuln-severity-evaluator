@@ -14,6 +14,7 @@ solo se puede crear una nueva ADR que la reemplace o anule.
 | [0004](/adr/0004-responsibility-per-domain) | Granularidad del modelo por dominio, no por clase | accepted | 2026-09-15 |
 | [0005](/adr/0005-scoring-specification-as-data) | La especificación de scoring y los catálogos son dato en base | accepted | 2026-09-15 |
 | [0006](/adr/0006-determinism-by-persistence) | Determinismo por persistencia, no por caché | accepted | 2026-09-15 |
+| [0007](/adr/0007-observability-reads-the-types-it-measures) | La observabilidad puede leer los tipos que mide | accepted | 2026-09-17 |
 
 ---
 

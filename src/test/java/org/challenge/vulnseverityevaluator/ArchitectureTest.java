@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.annotation.Annotation;
 
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.core.importer.ImportOption.Predefined.DO_NOT_INCLUDE_TESTS;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -40,6 +41,7 @@ class ArchitectureTest {
     public static final String CONTROLLER_PACKAGE = "..presentation.controller..";
     public static final String INFRASTRUCTURE_PACKAGE = "..infrastructure..";
     public static final String LLM_PACKAGE = "..datasource.llm..";
+    public static final String METRIC_PACKAGE = "..infrastructure.metric..";
     public static final String MODEL_PACKAGE = "..domain.model..";
     public static final String REPOSITORY_PACKAGE = "..datasource.repository..";
     public static final String SERVICE_PACKAGE = "..domain.service..";
@@ -63,10 +65,18 @@ class ArchitectureTest {
                 .should().resideInAnyPackage(packageName);
     }
 
+    /**
+     * The one exception, documented as ADR-0007: the metric collector may read the types it measures, because its
+     * parameter is the object being measured rather than a list of its fields. It is scoped to that subpackage and
+     * it is one directional — nothing gains access to the collector, and {@code MODEL_ACCESS} is not widened, so no
+     * other infrastructure class may reach into the domain.
+     */
     @Test
     void givenLayeredArchitectureWhenCheckThenDoNotThrowException() {
         ArchRule rule = layeredArchitecture()
                 .consideringAllDependencies()
+                .ignoreDependency(resideInAPackage(METRIC_PACKAGE),
+                        resideInAPackage(MODEL_PACKAGE).or(resideInAPackage(LLM_PACKAGE)))
                 .layer(APPLICATION).definedBy(APPLICATION_PACKAGE)
                 .layer(CONFIGURATION).definedBy(CONFIGURATION_PACKAGE)
                 .layer(CONTROLLER).definedBy(CONTROLLER_PACKAGE)
