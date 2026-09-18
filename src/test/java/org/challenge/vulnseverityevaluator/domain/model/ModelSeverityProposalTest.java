@@ -111,6 +111,41 @@ class ModelSeverityProposalTest {
                 .hasMessageContaining("no summary");
     }
 
+    @Test
+    void givenSummaryAtStorageLimitWhenCreatingThenReturnProposal() {
+        assertThat(createModelSeverityProposal(complete(), "s".repeat(VulnerabilityEvaluation.SUMMARY_MAX_LENGTH),
+                vocabulary).summary()).hasSize(VulnerabilityEvaluation.SUMMARY_MAX_LENGTH);
+    }
+
+    @Test
+    void givenSummaryBeyondStorageLimitWhenCreatingThenThrowInvalidModelProposalException() {
+        assertThatThrownBy(() -> createModelSeverityProposal(complete(),
+                "s".repeat(VulnerabilityEvaluation.SUMMARY_MAX_LENGTH + 1), vocabulary))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("storage limit");
+    }
+
+    @Test
+    void givenRationaleAtStorageLimitWhenCreatingThenReturnProposal() {
+        List<MetricChoice> choices = complete();
+        choices.set(0, createMetricChoice(vocabulary.getFirst().code(), NOT_DEFINED,
+                "r".repeat(MetricChoice.RATIONALE_MAX_LENGTH)));
+
+        assertThat(createModelSeverityProposal(choices, SUMMARY, vocabulary).choices().getFirst().rationale())
+                .hasSize(MetricChoice.RATIONALE_MAX_LENGTH);
+    }
+
+    @Test
+    void givenRationaleBeyondStorageLimitWhenCreatingThenThrowInvalidModelProposalException() {
+        List<MetricChoice> choices = complete();
+        choices.set(0, createMetricChoice(vocabulary.getFirst().code(), NOT_DEFINED,
+                "r".repeat(MetricChoice.RATIONALE_MAX_LENGTH + 1)));
+
+        assertThatThrownBy(() -> createModelSeverityProposal(choices, SUMMARY, vocabulary))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("storage limit");
+    }
+
     /**
      * Every admitted value of every metric has to be accepted. A vocabulary that advertises a value the validation
      * then rejects would make the model fail for obeying its own instructions.

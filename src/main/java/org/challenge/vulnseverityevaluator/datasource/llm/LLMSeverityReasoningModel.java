@@ -1,6 +1,8 @@
 package org.challenge.vulnseverityevaluator.datasource.llm;
 
 import org.challenge.vulnseverityevaluator.domain.model.*;
+import org.challenge.vulnseverityevaluator.infrastructure.ModelAnswerUnusableException;
+import org.challenge.vulnseverityevaluator.infrastructure.ModelProviderException;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
@@ -73,7 +75,11 @@ public class LLMSeverityReasoningModel implements SeverityReasoningModel {
                         .param(CONTEXT_PARAMETER, renderedContext(context)))
                 .call()
                 .entity(ProposalAnswer.class));
-        return answer.toProposal(vocabulary);
+        try {
+            return answer.toProposal(vocabulary);
+        } catch (RuntimeException exception) {
+            throw new ModelAnswerUnusableException("the model returned an invalid proposal", exception);
+        }
     }
 
     @Override
@@ -99,7 +105,7 @@ public class LLMSeverityReasoningModel implements SeverityReasoningModel {
             return answer;
         } catch (RuntimeException exception) {
             collectResourceModelCall(this, operation, false);
-            throw exception;
+            throw new ModelProviderException("the model provider call failed", exception);
         }
     }
 

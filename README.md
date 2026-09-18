@@ -78,4 +78,6 @@ npx docsify-cli serve docs/guide
 
 ## Requisitos
 
-JDK compatible con Spring Boot 4. No hace falta instalar Gradle: usar el wrapper (`./gradlew`).
+JDK 25 LTS. El build fija Java 25 mediante el toolchain de Gradle y genera bytecode para esa versión. No hace falta
+instalar Gradle: usar el wrapper (`./gradlew`), que descargará o seleccionará un JDK 25 compatible según la
+configuración local de Gradle.

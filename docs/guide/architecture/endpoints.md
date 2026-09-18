@@ -45,6 +45,10 @@ Evalúa una vulnerabilidad contra una aplicación y **persiste el resultado**.
 Si no viene, el modelo lo deriva, y eso queda registrado como `MODEL_DERIVED` con confianza degradada y revisión
 obligatoria.
 
+Si viene, debe ser un vector **Base CVSS:3.1**: prefijo exacto y las ocho métricas Base, cada una una sola vez.
+Se aceptan en cualquier orden y se normalizan al orden canónico en la respuesta. Métricas Temporal o Environmental,
+componentes desconocidos, asignaciones vacías y duplicados se rechazan con 400; no se ignoran silenciosamente.
+
 ### Respuesta `201` + `Location`
 
 ```json
@@ -95,9 +99,13 @@ Todos como RFC 7807 (`application/problem+json`).
 | `400` | Input del caller inválido: vector malformado, código fuera de catálogo, enum desconocido, campo mal escrito, tamaño excedido | **Sí**, describe el propio input del caller |
 | `404` | La evaluación no existe | Genérico |
 | `502` | El modelo no produjo una respuesta usable, o el proveedor falló | **No**: el detalle del proveedor queda en el log |
+| `500` | Falla interna o de persistencia | **No**: se devuelve un problema genérico, sin atribuirlo al modelo |
 
 La distinción 400/502 importa: una respuesta del modelo fuera de su vocabulario **no es culpa del caller**, así que
 no se le devuelve un 400 que le haga revisar una request que estaba bien.
+El vector aportado se valida antes de llamar al modelo. El vector derivado y la propuesta se validan antes de calcular
+o persistir: `summary` admite hasta 4000 caracteres, cada `rationale` hasta 2000 y cada vector almacenado hasta 2000.
+Las salidas excedidas se rechazan sin recortarlas.
 
 ---
 

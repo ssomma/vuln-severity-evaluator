@@ -20,9 +20,8 @@ import static org.challenge.vulnseverityevaluator.domain.model.SchemeMetric.NOT_
  * The model never proposes a number. Scores are computed by the scheme, so a hallucinated score cannot reach a
  * consumer even if the model volunteers one.
  * <p>
- * Failures are signalled with {@link IllegalStateException} rather than a custom type: a bad answer is not a bad
- * argument, it is an unusable state produced by a collaborator, and the caller who sent a perfectly valid request
- * should not be told its request was wrong.
+ * A rejected proposal raises {@link IllegalStateException}; the model adapter or service maps that boundary failure
+ * to an explicit unusable-answer exception before it reaches HTTP.
  */
 public record ModelSeverityProposal(List<MetricChoice> choices, String summary) {
 
@@ -31,8 +30,11 @@ public record ModelSeverityProposal(List<MetricChoice> choices, String summary) 
                                                                     List<SchemeMetric> vocabulary) {
         Assert.state(!CollectionUtils.isEmpty(choices), "the model answer has no metric choices");
         Assert.state(StringUtils.hasText(summary), "the model answer has no summary");
-        vocabulary.forEach(metric -> require(choices, metric));
+        Assert.state(summary.length() <= VulnerabilityEvaluation.SUMMARY_MAX_LENGTH,
+                "the model summary exceeds the storage limit");
         choices.forEach(choice -> validate(choice, vocabulary));
+        vocabulary.forEach(metric -> require(choices, metric));
+        Assert.state(choices.size() == vocabulary.size(), "the model answer has duplicate metric choices");
         return new ModelSeverityProposal(List.copyOf(choices), summary);
     }
 
@@ -58,6 +60,10 @@ public record ModelSeverityProposal(List<MetricChoice> choices, String summary) 
     }
 
     private static void validate(MetricChoice choice, List<SchemeMetric> vocabulary) {
+        Assert.state(choice != null, "the model answer has a null metric choice");
+        Assert.state(StringUtils.hasText(choice.rationale()), "the model answer has no metric rationale");
+        Assert.state(choice.rationale().length() <= MetricChoice.RATIONALE_MAX_LENGTH,
+                "the model rationale exceeds the storage limit");
         SchemeMetric metric = vocabulary.stream()
                 .filter(candidate -> candidate.code().equals(choice.metric()))
                 .findFirst()

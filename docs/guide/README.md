@@ -42,6 +42,7 @@ registrada** en vez de volver a preguntar. El servicio es determinista aunque aq
 ## Cómo correrlo
 
 El perfil por defecto es `local`: modelo determinista, base en memoria, sin API key ni red.
+El proyecto requiere **JDK 25 LTS**: Gradle fija ese toolchain y compila con `--release 25`.
 
 ```bash
 ./gradlew bootRun
@@ -55,6 +56,7 @@ El perfil por defecto es `local`: modelo determinista, base en memoria, sin API 
 | Componente | Tecnología | Versión |
 |-----------|-----------|---------|
 | Framework | Spring Boot | 4.1.1 |
+| JDK | Java LTS | 25 |
 | IA | Spring AI · `spring-ai-starter-model-openai` | 2.0.1 |
 | Web | `spring-boot-starter-webmvc` | gestionado |
 | Persistencia | `spring-boot-starter-data-jpa` + H2 | gestionado |

@@ -6,6 +6,7 @@ import org.challenge.vulnseverityevaluator.domain.model.ApplicationContext;
 import org.challenge.vulnseverityevaluator.domain.model.ContextAttribute;
 import org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind;
 import org.challenge.vulnseverityevaluator.domain.model.SchemeMetric;
+import org.challenge.vulnseverityevaluator.infrastructure.InvalidEvaluationRequestException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -80,8 +81,8 @@ public class SpecificationCatalog {
      * Only the kind becomes a dimension. The rejected code is caller controlled and by definition absent from the
      * catalog, so it is not a bounded value; it stays in the exception message, which does reach the caller.
      */
-    private static IllegalArgumentException rejected(Kind kind, String code) {
+    private static InvalidEvaluationRequestException rejected(Kind kind, String code) {
         collectEventContextValueRejected(kind);
-        return new IllegalArgumentException(kind + " value not admitted: " + code);
+        return new InvalidEvaluationRequestException(kind + " value not admitted: " + code);
     }
 }

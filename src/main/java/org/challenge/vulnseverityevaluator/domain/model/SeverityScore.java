@@ -20,12 +20,14 @@ import static jakarta.persistence.EnumType.STRING;
 @Embeddable
 public class SeverityScore {
 
+    public static final int VECTOR_MAX_LENGTH = 2_000;
+
     private BigDecimal score;
 
     @Enumerated(STRING)
     private SeverityRating rating;
 
-    @Column(length = 2_000)
+    @Column(length = VECTOR_MAX_LENGTH)
     private String vector;
 
     protected SeverityScore() {
