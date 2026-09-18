@@ -27,12 +27,18 @@ La huella identifica los insumos: modelo, versión de prompt, identificador y ve
 descripción, y el contexto declarado. Si existe una evaluación con esa huella, se devuelve esa; si no, se evalúa y se
 registra.
 
+La decisión arquitectónica exige que esa tabla sea durable. La implementación actual es una prueba de concepto con
+H2 en memoria: demuestra el lookup por huella dentro del proceso, pero no conserva la evaluación entre reinicios.
+Para cumplir la garantía completa se requiere una base persistente y migraciones versionadas.
+
 El caché en memoria se eliminó, junto con su configuración y el decorator que lo envolvía.
 
 ## Consecuencias
 
-- **Bueno:** la propiedad es durable. Sobrevive reinicios y no expira, porque es una fila y no una entrada con tiempo
-  de vida.
+- **Bueno en un despliegue con base durable:** la propiedad sobrevive reinicios y no expira, porque es una fila y no
+  una entrada con tiempo de vida.
+- **Límite actual:** H2 en memoria descarta esas filas al reiniciar. Es una limitación consciente de la prueba de
+  concepto, no una implementación completa de la garantía de este ADR.
 - **Bueno:** el modelo y la versión de prompt forman parte de la huella, así que cambiar cualquiera de los dos produce
   una evaluación nueva en vez de reusar razonamiento de una configuración vieja. Un caché con clave por CVE habría
   servido reasoning obsoleto tras un cambio de prompt.

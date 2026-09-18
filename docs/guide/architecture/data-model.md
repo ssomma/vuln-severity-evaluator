@@ -78,6 +78,10 @@ las evaluaciones con el modelo determinista y con un proveedor externo se calcul
 Los perfiles de producción requieren su API key correspondiente;
 ver el [README](../../../README.md#proveedores-externos-y-modelos).
 
+La búsqueda por `fingerprint` implementa el determinismo por persistencia definido en el ADR-0006, pero la garantía
+entre reinicios solo existe cuando la tabla reside en una base durable. Con H2 en memoria esta prueba de concepto
+puede reutilizar una evaluación únicamente mientras el proceso permanece activo.
+
 > Un despliegue real necesita **migraciones versionadas**, no `ddl-auto`, y que el catálogo exista antes de recibir
 > tráfico. Quedó fuera de alcance por tratarse de una prueba de concepto, y es deuda consciente, no un olvido.
 

@@ -66,9 +66,11 @@ perfil de producción habilita únicamente `spring.ai.model.chat: openai`.
 
 En este desafío, `local`, `production-openai` y `production-grok` cargan el mismo catálogo CVSS/contexto en **H2 en memoria**.
 Esto permite ejercitar la integración externa sin aprovisionar una base; las evaluaciones se pierden al reiniciar.
-Para un despliegue duradero se necesita una base persistente y migraciones versionadas, como se explica en
-[Modelo de datos](docs/guide/architecture/data-model.md). Los perfiles de proveedor seleccionan el cliente y sus
-credenciales; no cambian el cálculo de severidad.
+Arquitectónicamente, el determinismo para una entrada repetida se obtiene al persistir y consultar la evaluación por
+su huella antes de invocar al modelo. H2 efímera solo permite comprobar ese flujo mientras el proceso sigue activo;
+un despliegue que conserve esa garantía tras reinicios necesita una base persistente y migraciones versionadas, como
+se explica en [Modelo de datos](docs/guide/architecture/data-model.md). Los perfiles de proveedor seleccionan el
+cliente y sus credenciales; no cambian el cálculo de severidad.
 
 ## Tests
 

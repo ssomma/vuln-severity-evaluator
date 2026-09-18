@@ -52,7 +52,9 @@ Demostración concreta, con el mismo CVE-2021-44228 y el mismo vector base:
   completo corre sin API key y sin red.
 - **Prueba de concepto.** La base es H2 en memoria, compartida por los perfiles `local`, `production-openai` y
   `production-grok`; los dos últimos usan la misma implementación externa configurada por proveedor. El contrato HTTP no está
-  versionado en el path.
+  versionado en el path. La arquitectura obtiene determinismo por la evaluación persistida y su huella, pero H2
+  efímera solo lo conserva mientras el proceso está levantado; una base durable y migraciones son necesarias para
+  mantenerlo tras reinicios.
 
 ---
 
@@ -157,7 +159,8 @@ La decisión central:
 debe ser una fuente determinista. Se resuelve en cuatro pasos: acotar la variación a un conjunto finito de valores
 admitidos; computar todos los números acá; registrar la elección con su procedencia; y **responder una request
 idéntica con la evaluación ya registrada** en lugar de volver a preguntar. Ese último paso es un lookup por huella en
-la tabla de evaluaciones — no un caché, que expiraba y se perdía al reiniciar.
+la tabla de evaluaciones — no un caché, que expiraba y se perdía al reiniciar. La garantía se completa con una base
+durable: la H2 en memoria de esta prueba de concepto valida el lookup, pero pierde las filas al reiniciar.
 
 Tratamiento completo —alucinación, drift, inyección de prompt, y por qué la salida nunca dispara remediación
 automática— en [Uso de IA y sus límites](/architecture/ai-usage-and-limits) y
