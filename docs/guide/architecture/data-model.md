@@ -14,7 +14,7 @@ condiciones.
 | Columna | Rol |
 |---|---|
 | `id` | UUID, nunca secuencial |
-| `fingerprint` | **único.** Identidad de los insumos: modelo, versión de prompt, vulnerabilidad y contexto. Es lo que hace determinista al servicio ([ADR-0006](/adr/0006-determinism-by-persistence)) |
+| `fingerprint` | **único, SHA-256 hexadecimal de 64 caracteres.** Identidad de esquema, modelo, versión de prompt, fuente del baseline, vulnerabilidad y contexto. Cada campo se codifica con longitud para evitar ambigüedades; las listas se ordenan. Evita que una colisión de `String.hashCode()` reutilice una evaluación ajena ([ADR-0006](/adr/0006-determinism-by-persistence)) |
 | `vulnerability_identifier`, `vulnerability_description` | El input, persistido para poder auditar la evaluación después |
 | `name`, `exposure`, `data_classification`, `business_criticality` | Snapshot del contexto declarado |
 | `scheme_id` | Con qué esquema se computó. Hace que evaluaciones de esquemas distintos convivan y que las históricas sigan siendo interpretables |
@@ -27,6 +27,12 @@ Colecciones: `evaluation_justification` (una fila por métrica, con su valor y s
 
 El snapshot del contexto se guarda entero a propósito. El caller es la fuente de verdad de ese dato, así que puede
 influir en el score de su propia aplicación — pero no de forma invisible: queda registrado y es auditable después.
+
+La huella tiene tamaño fijo incluso para las entradas máximas admitidas. El índice único arbitra solicitudes
+concurrentes: si otra solicitud inserta primero la misma huella, el servicio lee y devuelve esa evaluación.
+Esto preserva la respuesta idempotente, aunque ambas solicitudes podrían haber llamado al modelo antes de competir.
+Una base persistente con huellas del formato anterior requiere migración de esas filas antes de adoptar la nueva
+clave; el perfil `local` recrea su base y no conserva filas entre arranques.
 
 ---
 

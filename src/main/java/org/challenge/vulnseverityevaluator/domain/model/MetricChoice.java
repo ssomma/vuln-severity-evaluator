@@ -13,6 +13,8 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class MetricChoice {
 
+    public static final int RATIONALE_MAX_LENGTH = 2_000;
+
     private String metric;
 
     /**
@@ -22,7 +24,7 @@ public class MetricChoice {
     @Column(name = "chosen_value")
     private String value;
 
-    @Column(length = 2_000)
+    @Column(length = RATIONALE_MAX_LENGTH)
     private String rationale;
 
     protected MetricChoice() {

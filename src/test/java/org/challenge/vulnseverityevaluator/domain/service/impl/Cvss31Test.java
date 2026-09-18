@@ -137,7 +137,14 @@ class Cvss31Test {
             "", "   ", "not-a-vector",
             "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H",
             "CVSS:3.1/AV:Z/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-            "CVSS:3.1/AV:/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+            "CVSS:3.1/AV:/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "CVSS:4.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/",
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:P",
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/AV:L",
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/ZZ:H",
+            "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H:extra"
     })
     void givenMalformedVectorWhenAssessingThenThrowIllegalArgumentException(String vector) {
         assertThatThrownBy(() -> assess(vector)).isInstanceOf(IllegalArgumentException.class);
@@ -146,6 +153,14 @@ class Cvss31Test {
     @Test
     void givenNullVectorWhenAssessingThenThrowIllegalArgumentException() {
         assertThatThrownBy(() -> assess(null)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenOutOfOrderBaseMetricsWhenAssessingThenReturnCanonicalVector() {
+        SeverityAssessment assessment = assess("CVSS:3.1/A:H/I:H/C:H/S:U/UI:N/PR:N/AC:L/AV:N");
+
+        assertThat(assessment.baseline().vector())
+                .isEqualTo("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H");
     }
 
     private SeverityAssessment assess(String vector, String... overrides) {

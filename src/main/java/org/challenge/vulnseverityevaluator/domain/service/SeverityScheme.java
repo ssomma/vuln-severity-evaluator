@@ -20,5 +20,7 @@ public interface SeverityScheme {
 
     String id();
 
+    void validateBaselineVector(String vector, List<SchemeMetric> metrics);
+
     SeverityAssessment assess(String baselineVector, ModelSeverityProposal proposal, List<SchemeMetric> metrics);
 }

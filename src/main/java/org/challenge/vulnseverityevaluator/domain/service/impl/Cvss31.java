@@ -7,12 +7,9 @@ import org.challenge.vulnseverityevaluator.domain.model.SeverityRating;
 import org.challenge.vulnseverityevaluator.domain.model.SeverityScore;
 import org.challenge.vulnseverityevaluator.domain.service.SeverityScheme;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +19,14 @@ import java.util.TreeMap;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
-import static java.math.RoundingMode.DOWN;
-import static java.math.RoundingMode.HALF_UP;
+import static java.math.RoundingMode.*;
+import static java.util.Objects.nonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.IntStream.range;
 import static org.challenge.vulnseverityevaluator.domain.model.SchemeMetric.NOT_DEFINED;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * CVSS v3.1: Base metrics anchor the score, Environmental metrics re-score it for the concrete application.
@@ -81,6 +81,11 @@ public class Cvss31 implements SeverityScheme {
     @Override
     public String id() {
         return SCHEME_ID;
+    }
+
+    @Override
+    public void validateBaselineVector(String vector, List<SchemeMetric> metrics) {
+        parse(vector, metrics.stream().collect(toMap(SchemeMetric::code, identity())));
     }
 
     @Override
@@ -144,23 +149,29 @@ public class Cvss31 implements SeverityScheme {
      * Neutral requirements, which is what turns the environmental formula into the base one.
      */
     private static Map<String, BigDecimal> neutral() {
-        return REQUIREMENT_OF_IMPACT.values().stream().collect(toMap(identity(), code -> ONE));
+        return REQUIREMENT_OF_IMPACT.values().stream().collect(toMap(identity(), _ -> ONE));
     }
 
     private static Map<String, String> parse(String vector, Map<String, SchemeMetric> catalog) {
-        Assert.isTrue(StringUtils.hasText(vector), "the baseline vector is missing");
-        Map<String, String> parsed = Arrays.stream(vector.split(SEPARATOR))
-                .map(part -> part.split(ASSIGNMENT))
-                .filter(pair -> pair.length == 2)
-                .collect(toMap(pair -> pair[0], pair -> pair[1], (first, second) -> first));
+        isTrue(hasText(vector), "the baseline vector is missing");
+        String[] parts = vector.split(SEPARATOR, -1);
+        isTrue(parts.length == BASE_CODES.size() + 1 && SCHEME_ID.equals(parts[0]),
+                "the baseline vector must contain exactly the CVSS:3.1 base metrics");
+        Map<String, String> parsed = new LinkedHashMap<>();
+        range(1, parts.length)
+                .mapToObj(index -> parts[index].split(ASSIGNMENT, -1))
+                .forEachOrdered(assignment -> {
+                    isTrue(assignment.length == 2 && BASE_CODES.contains(assignment[0]), "invalid base metric assignment");
+                    isTrue(parsed.putIfAbsent(assignment[0], assignment[1]) == null, () -> "duplicate base metric " + assignment[0]);
+                });
         BASE_CODES.forEach(code -> require(parsed, code, catalog));
         return parsed;
     }
 
     private static void require(Map<String, String> parsed, String code, Map<String, SchemeMetric> catalog) {
         SchemeMetric metric = catalog.get(code);
-        boolean admitted = metric != null && metric.value(parsed.getOrDefault(code, NOT_DEFINED)).isPresent();
-        Assert.isTrue(admitted, () -> "missing or unknown metric " + code + " in the baseline vector");
+        boolean admitted = nonNull(metric) && metric.value(parsed.getOrDefault(code, NOT_DEFINED)).isPresent();
+        isTrue(admitted, () -> "missing or unknown metric " + code + " in the baseline vector");
     }
 
     private static String vector(Map<String, String> metrics) {
@@ -209,7 +220,7 @@ public class Cvss31 implements SeverityScheme {
         BigDecimal score(BigDecimal factor, int exponent) {
             BigDecimal impact = impact(factor, exponent);
             boolean harmless = impact.signum() <= 0;
-            return harmless ? ZERO.setScale(1) : roundUp(scoped(impact.add(exploitability())).min(TEN));
+            return harmless ? ZERO.setScale(1, UP) : roundUp(scoped(impact.add(exploitability())).min(TEN));
         }
 
         private BigDecimal scoped(BigDecimal sum) {

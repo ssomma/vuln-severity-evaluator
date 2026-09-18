@@ -19,7 +19,6 @@ import java.util.Set;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
-import static java.util.stream.Collectors.joining;
 
 /**
  * The technological context of the application a vulnerability may affect, as declared by the caller.
@@ -41,7 +40,6 @@ import static java.util.stream.Collectors.joining;
 @Embeddable
 public class ApplicationContext {
 
-    private static final String SEPARATOR = "|";
     private static final String CODE = "[A-Z][A-Z0-9_]{0,63}";
 
     @NotBlank
@@ -101,16 +99,6 @@ public class ApplicationContext {
         return Set.copyOf(compensatingControls);
     }
 
-    /**
-     * A stable identity for this declared context, used to recognise a request that has already been evaluated.
-     */
-    public String fingerprint() {
-        return String.join(SEPARATOR, name, riskProfile.fingerprint(), sorted(runtime), sorted(compensatingControls));
-    }
-
-    private static String sorted(Set<String> values) {
-        return values.stream().sorted().collect(joining(","));
-    }
 
     /**
      * Why the application matters: where it is reachable from, what data it handles, and how critical it is to the
@@ -159,8 +147,5 @@ public class ApplicationContext {
             return businessCriticality;
         }
 
-        String fingerprint() {
-            return String.join(SEPARATOR, exposure.name(), dataClassification.name(), businessCriticality.name());
-        }
     }
 }
