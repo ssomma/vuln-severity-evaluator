@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -16,20 +18,31 @@ import org.springframework.util.StringUtils;
 /**
  * Wires the language model datasource for the profiles that talk to a real provider.
  * <p>
- * The API key is read from the environment and validated at startup: a missing credential fails the boot instead of
- * failing the first request, and it is never held in configuration committed to the repository.
+ * Production provider profiles configure Spring AI's OpenAI-compatible client. The provider, model, endpoint and
+ * credential are validated at startup; the provider id becomes part of evaluation provenance so two endpoints do not
+ * share a fingerprint.
  */
 @Configuration
-@Profile({"production", "test"})
+@Profile({"production-openai", "production-grok"})
 public class DataSourceConfiguration {
 
-    private static final String MISSING_KEY = "OPENAI_API_KEY must be set for this profile";
+    private final Environment environment;
+
+    public DataSourceConfiguration(Environment environment) {
+        this.environment = environment;
+    }
+
+    @Value("${app.ai.provider-id:}")
+    private String providerId;
 
     @Value("${spring.ai.openai.api-key:}")
     private String apiKey;
 
-    @Value("${spring.ai.openai.chat.model}")
+    @Value("${spring.ai.openai.chat.model:}")
     private String model;
+
+    @Value("${spring.ai.openai.base-url:}")
+    private String baseUrl;
 
     @Value("classpath:templates/prompts/contextual-severity/system-v1.st")
     private Resource contextualSystem;
@@ -44,13 +57,19 @@ public class DataSourceConfiguration {
     private Resource baselineUser;
 
     @PostConstruct
-    public void validateCredentials() {
-        Assert.state(StringUtils.hasText(apiKey), MISSING_KEY);
+    public void validateConfiguration() {
+        boolean openAi = environment.acceptsProfiles(Profiles.of("production-openai"));
+        boolean grok = environment.acceptsProfiles(Profiles.of("production-grok"));
+        Assert.state(openAi != grok, "activate exactly one production provider profile");
+        Assert.state(StringUtils.hasText(providerId), "the provider id is required");
+        Assert.state(StringUtils.hasText(apiKey), "the provider API key is required");
+        Assert.state(StringUtils.hasText(model), "the provider chat model is required");
+        Assert.state(StringUtils.hasText(baseUrl), "the provider base URL is required");
     }
 
     @Bean
     public SeverityReasoningModel severityReasoningModel(ChatClient.Builder builder) {
         Prompts prompts = new Prompts(contextualSystem, contextualUser, baselineSystem, baselineUser);
-        return new LLMSeverityReasoningModel(builder.build(), model, prompts);
+        return new LLMSeverityReasoningModel(builder.build(), providerId + "/" + model, prompts);
     }
 }

@@ -149,7 +149,7 @@ public class Cvss31 implements SeverityScheme {
      * Neutral requirements, which is what turns the environmental formula into the base one.
      */
     private static Map<String, BigDecimal> neutral() {
-        return REQUIREMENT_OF_IMPACT.values().stream().collect(toMap(identity(), _ -> ONE));
+        return REQUIREMENT_OF_IMPACT.values().stream().collect(toMap(identity(), code -> ONE));
     }
 
     private static Map<String, String> parse(String vector, Map<String, SchemeMetric> catalog) {

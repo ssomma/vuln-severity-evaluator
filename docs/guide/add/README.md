@@ -50,7 +50,8 @@ Demostración concreta, con el mismo CVE-2021-44228 y el mismo vector base:
   autorización: el camino correcto queda documentado pero no se inventa un reemplazo casero (§8).
 - **Tiene que ser reproducible sin credenciales.** El perfil `local` usa un modelo determinista, así que el flujo
   completo corre sin API key y sin red.
-- **Prueba de concepto.** La base es H2 en memoria, declarada dentro del perfil `local`, y el contrato HTTP no está
+- **Prueba de concepto.** La base es H2 en memoria, compartida por los perfiles `local`, `production-openai` y
+  `production-grok`; los dos últimos usan la misma implementación externa configurada por proveedor. El contrato HTTP no está
   versionado en el path.
 
 ---

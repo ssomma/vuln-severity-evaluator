@@ -1,0 +1,16 @@
+# Production configuration for OpenAI. OPENAI_API_KEY is the only secret.
+app:
+  ai:
+    provider-id: openai
+spring:
+  ai:
+    model:
+      chat: openai
+    openai:
+      base-url: https://api.openai.com/v1
+      api-key: ${OPENAI_API_KEY:}
+      timeout: 60s
+      max-retries: 3
+      chat:
+        model: gpt-4o-mini
+        temperature: 0.0

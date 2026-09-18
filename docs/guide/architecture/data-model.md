@@ -32,7 +32,7 @@ La huella tiene tamaño fijo incluso para las entradas máximas admitidas. El í
 concurrentes: si otra solicitud inserta primero la misma huella, el servicio lee y devuelve esa evaluación.
 Esto preserva la respuesta idempotente, aunque ambas solicitudes podrían haber llamado al modelo antes de competir.
 Una base persistente con huellas del formato anterior requiere migración de esas filas antes de adoptar la nueva
-clave; el perfil `local` recrea su base y no conserva filas entre arranques.
+clave; los perfiles `local`, `production-openai` y `production-grok` de este desafío recrean su base y no conservan filas entre arranques.
 
 ---
 
@@ -73,8 +73,10 @@ sugerencias de los atributos declarados y responde `X` donde el contexto no dice
 ## Schema y migraciones
 
 El schema se deriva de las entidades (`ddl-auto: create-drop`) y el catálogo se carga desde `sql/data.sql`, ambos
-**dentro del perfil `local`**: es una base en memoria y efímera, pensada para que el servicio sea reproducible sin
-credenciales.
+**en los perfiles `local`, `production-openai` y `production-grok`**: es una base en memoria y efímera. Comparten el mismo catálogo para que
+las evaluaciones con el modelo determinista y con un proveedor externo se calculen contra la misma especificación.
+Los perfiles de producción requieren su API key correspondiente;
+ver el [README](../../../README.md#proveedores-externos-y-modelos).
 
 > Un despliegue real necesita **migraciones versionadas**, no `ddl-auto`, y que el catálogo exista antes de recibir
 > tráfico. Quedó fuera de alcance por tratarse de una prueba de concepto, y es deuda consciente, no un olvido.
