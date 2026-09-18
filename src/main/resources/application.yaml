@@ -7,9 +7,17 @@ spring:
   jpa:
     open-in-view: false
   ai:
-    # The local profile does not create a provider client. Production enables it explicitly.
+    # The application only consumes ChatModel. The OpenAI starter otherwise attempts to create every supported
+    # model type when its selector is absent; audio, image, embedding and moderation would require credentials
+    # even for the deterministic local profile.
     model:
       chat: none
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
   web:
     error:
       include-stacktrace: never

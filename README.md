@@ -60,6 +60,10 @@ los perfiles existentes: `app.ai.provider-id`, `spring.ai.model.chat`, `spring.a
 `DataSourceConfiguration` y al bloque de H2 del desafío. El endpoint debe implementar OpenAI Chat y devolver el
 formato que consume Spring AI.
 
+Los selectores de audio, imagen, embeddings y moderación quedan desactivados en `application.yaml`: este servicio
+solo consume el modelo de chat. Así, el perfil `local` no intenta crear beans de OpenAI ni exige credenciales; cada
+perfil de producción habilita únicamente `spring.ai.model.chat: openai`.
+
 En este desafío, `local`, `production-openai` y `production-grok` cargan el mismo catálogo CVSS/contexto en **H2 en memoria**.
 Esto permite ejercitar la integración externa sin aprovisionar una base; las evaluaciones se pierden al reiniciar.
 Para un despliegue duradero se necesita una base persistente y migraciones versionadas, como se explica en
