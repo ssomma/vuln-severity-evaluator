@@ -84,7 +84,7 @@ Utilidades de bajo nivel, transversales a varias capas de negocio: manejo global
 
 ### 3.5 Configuration
 
-La raíz de composición del módulo. Es la **única** capa que puede depender de todas las demás, porque su trabajo es exactamente ensamblar el grafo de dependencias: construye los beans concretos de `datasource` y `domain.service`, los inyecta entre sí y en los controllers, típicamente separando por *profile* de Spring (`production`/`test` con implementaciones reales vs. `local` con mocks).
+La raíz de composición del módulo. Es la **única** capa que puede depender de todas las demás, porque su trabajo es exactamente ensamblar el grafo de dependencias: construye los beans concretos de `datasource` y `domain.service`, los inyecta entre sí y en los controllers, separando por *profile* de Spring (`local` con modelo determinista; `production-<provider>` con el datasource externo).
 
 ### 3.6 Application (composition root)
 

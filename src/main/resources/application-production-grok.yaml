@@ -1,0 +1,16 @@
+# Production configuration for xAI Grok through its OpenAI-compatible Chat API. GROK_API_KEY is the only secret.
+app:
+  ai:
+    provider-id: grok
+spring:
+  ai:
+    model:
+      chat: openai
+    openai:
+      base-url: https://api.x.ai/v1
+      api-key: ${GROK_API_KEY:}
+      timeout: 60s
+      max-retries: 3
+      chat:
+        model: grok-4
+        temperature: 0.0

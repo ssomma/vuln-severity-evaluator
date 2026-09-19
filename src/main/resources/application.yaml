@@ -7,30 +7,31 @@ spring:
   jpa:
     open-in-view: false
   ai:
-    openai:
-      api-key: ${OPENAI_API_KEY:}
-      chat:
-        model: gpt-4o-mini
-        temperature: 0.0
+    # The application only consumes ChatModel. The OpenAI starter otherwise attempts to create every supported
+    # model type when its selector is absent; audio, image, embedding and moderation would require credentials
+    # even for the deterministic local profile.
+    model:
+      chat: none
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
   web:
     error:
       include-stacktrace: never
       include-message: never
 ---
-# Local profile: an ephemeral in memory database, created from the entities and seeded with the scoring
-# specification and the context catalog. This is the setup that makes the service runnable and reviewable without
-# credentials; a real deployment points at its own database, where the catalog is data that already exists.
+# All runnable profiles need the same scoring specification and context catalog. H2 is an ephemeral
+# challenge fixture; deploying this service requires a durable database and versioned migrations.
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: "local | production-openai | production-grok"
   datasource:
     url: jdbc:h2:mem:evaluations;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
   sql:
     init:
       mode: embedded
@@ -39,6 +40,14 @@ spring:
     # The seed has to run after Hibernate creates the schema, not before it.
     defer-datasource-initialization: true
     hibernate:
-      # The database is ephemeral, so the schema is derived from the entities. A real deployment needs versioned
-      # migrations instead: see docs/guide/architecture/data-model.md.
+      # The challenge fixture is ephemeral; see docs/guide/architecture/data-model.md for deployment requirements.
       ddl-auto: create-drop
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

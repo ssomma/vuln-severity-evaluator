@@ -55,9 +55,10 @@ métrica.
 **Es real y `temperature: 0.0` no lo elimina.** Ningún proveedor garantiza salidas idénticas, y el modelo detrás de
 un alias cambia con el tiempo. Así que las elecciones pueden variar entre llamadas.
 
-La aplicación, en cambio, sí es determinista, y no por confiar en el proveedor: una request idéntica se responde con
-**la evaluación ya registrada**, buscada por huella en la base ([ADR-0006](/adr/0006-determinism-by-persistence)).
-Lo que se logra es determinismo **por entrada repetida**, no reproducibilidad del razonamiento: dos entradas
+La arquitectura, en cambio, obtiene determinismo por una entrada repetida sin confiar en el proveedor: responde con
+**la evaluación ya registrada**, buscada por huella en una base persistente ([ADR-0006](/adr/0006-determinism-by-persistence)).
+La H2 en memoria de esta prueba de concepto valida ese lookup solo hasta que el proceso se reinicia; una base durable
+es necesaria para sostenerlo entre ejecuciones. Lo que se logra es determinismo **por entrada repetida**, no reproducibilidad del razonamiento: dos entradas
 distintas pero equivalentes pueden dar resultados distintos, y eso no se detecta solo.
 
 ### Inyección de prompt

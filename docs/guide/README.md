@@ -35,7 +35,8 @@ CVE-2021-44228 (Log4Shell), mismo vector base:
 > publicada.
 
 Y como un LLM tampoco es una fuente determinista, una request idéntica se responde con **la evaluación ya
-registrada** en vez de volver a preguntar. El servicio es determinista aunque aquello de lo que depende no lo sea.
+registrada** en vez de volver a preguntar. Esa garantía arquitectónica requiere persistencia durable. La prueba de
+concepto usa H2 en memoria, por lo que conserva la evaluación solo durante la vida del proceso y no tras un reinicio.
 
 ---
 
