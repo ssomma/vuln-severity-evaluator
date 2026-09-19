@@ -67,6 +67,8 @@ componentes desconocidos, asignaciones vacías y duplicados se rechazan con 400;
   "provenance": {
     "model": "stub-deterministic",
     "prompt_version": "stub-v1",
+    "catalog_version": "cvss31-context-v1",
+    "policy_version": "evaluation-policy-v1",
     "context_source": "CALLER_DECLARED",
     "baseline_vector_source": "CALLER_SUPPLIED",
     "confidence": "MEDIUM",

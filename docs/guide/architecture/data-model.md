@@ -14,13 +14,17 @@ condiciones.
 | Columna | Rol |
 |---|---|
 | `id` | UUID, nunca secuencial |
-| `fingerprint` | **único, SHA-256 hexadecimal de 64 caracteres.** Identidad de esquema, modelo, versión de prompt, fuente del baseline, vulnerabilidad y contexto. Cada campo se codifica con longitud para evitar ambigüedades; las listas se ordenan. Evita que una colisión de `String.hashCode()` reutilice una evaluación ajena ([ADR-0006](/adr/0006-determinism-by-persistence)) |
+| `fingerprint` | **único, SHA-256 hexadecimal de 64 caracteres.** Identidad de esquema, modelo, prompt, catálogo, política, fuente del baseline, vulnerabilidad y contexto. Cada campo se codifica con longitud para evitar ambigüedades; las listas se ordenan. Evita que una colisión de `String.hashCode()` reutilice una evaluación ajena ([ADR-0006](/adr/0006-determinism-by-persistence)) |
 | `vulnerability_identifier`, `vulnerability_description` | El input, persistido para poder auditar la evaluación después |
 | `name`, `exposure`, `data_classification`, `business_criticality` | Snapshot del contexto declarado |
 | `scheme_id` | Con qué esquema se computó. Hace que evaluaciones de esquemas distintos convivan y que las históricas sigan siendo interpretables |
 | `baseline_*`, `contextual_*` | Score, rating y vector de cada uno. Un mismo embeddable usado dos veces |
 | `summary` | La justificación en prosa |
-| `model`, `prompt_version`, `context_source`, `baseline_vector_source`, `confidence`, `review_required`, `evaluated_at` | Procedencia: bajo qué condiciones leer el resultado |
+| `model`, `prompt_version`, `catalog_version`, `policy_version`, `context_source`, `baseline_vector_source`, `confidence`, `review_required`, `evaluated_at` | Procedencia: bajo qué condiciones leer el resultado |
+
+Los cuatro identificadores estables de configuración forman `EvaluationConfiguration`, un `record` inmutable
+embebido en `Provenance`. JPA los persiste como columnas de la misma tabla y la API los mantiene planos en el JSON;
+el agrupamiento evita repetir argumentos sueltos al construir la procedencia y al calcular la huella.
 
 Colecciones: `evaluation_justification` (una fila por métrica, con su valor y su rationale), `evaluation_runtime` y
 `evaluation_control`.
@@ -40,7 +44,7 @@ clave; los perfiles `local`, `production-openai` y `production-grok` de este des
 
 | Tabla | Contenido |
 |---|---|
-| `scheme_metric` | Una fila por métrica de un esquema: código, etiqueta, la guía que lee el modelo y el orden en que se presenta |
+| `scheme_metric` | Una fila por métrica de un esquema: código, etiqueta, guía, orden y `catalog_version`. Todas las filas del esquema comparten esa versión, que también cubre el catálogo de contexto asociado |
 | `scheme_metric_value` | Los valores admitidos de cada métrica y su peso. `weight_when_scope_changed` existe por la única métrica CVSS cuyo peso depende de Scope |
 
 **Una fila por métrica, no una por pasada de scoring.** Una métrica se puntúa dos veces —con el valor del vector
@@ -55,6 +59,10 @@ reproducir los dos scores desde ese campo.
 
 Estas filas son a la vez la aritmética y el prompt: el mismo registro define qué valores se admiten y qué significa
 cada métrica para el modelo, así que no hay dos lugares que puedan desincronizarse.
+
+La versión se consulta como una proyección escalar antes del lookup de evaluación. Si coincide con la huella ya
+persistida, no se materializan métricas, pesos ni atributos. Una modificación de cualquiera de los dos catálogos debe
+incrementarla en la misma migración o transacción.
 
 ---
 

@@ -38,6 +38,18 @@ public class SpecificationCatalog {
     }
 
     /**
+     * A lightweight identity lookup used before the evaluation lookup. It intentionally reads one distinct scalar
+     * rather than materialising the complete scoring and context catalogs.
+     */
+    public String version(String schemeId) {
+        List<String> versions = metrics.findCatalogVersionsBySchemeId(schemeId);
+        if (versions.size() != 1 || versions.getFirst() == null || versions.getFirst().isBlank()) {
+            throw new IllegalStateException("scheme catalog must have exactly one version: " + schemeId);
+        }
+        return versions.getFirst();
+    }
+
+    /**
      * The metrics of the scheme, which are also the vocabulary the model may answer: every metric is contextualisable,
      * so there is nothing to filter out.
      */

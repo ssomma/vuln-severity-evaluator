@@ -5,48 +5,48 @@
 -- One row per metric, carrying its weights and the guidance the model reads. A metric is scored twice
 -- (from the baseline vector and from the declared context) but that is how the scheme computes, not two
 -- metrics: the X (Not Defined) abstention is protocol, not an admitted value, so it is not seeded.
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-AV', 'CVSS:3.1', 'AV', 'Attack Vector', 'Reachability of the vulnerable component in this deployment: N network, A adjacent, L local, P physical. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 1);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-AV', 'CVSS:3.1', 'AV', 'Attack Vector', 'Reachability of the vulnerable component in this deployment: N network, A adjacent, L local, P physical. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 1, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AV', 'N', 0.85, 0.85);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AV', 'A', 0.62, 0.62);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AV', 'L', 0.55, 0.55);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AV', 'P', 0.2, 0.2);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-AC', 'CVSS:3.1', 'AC', 'Attack Complexity', 'Whether controls in this deployment make the attack harder: L low, H high. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 2);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-AC', 'CVSS:3.1', 'AC', 'Attack Complexity', 'Whether controls in this deployment make the attack harder: L low, H high. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 2, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AC', 'L', 0.77, 0.77);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AC', 'H', 0.44, 0.44);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-PR', 'CVSS:3.1', 'PR', 'Privileges Required', 'Privileges an attacker needs in this deployment: N none, L low, H high. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 3);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-PR', 'CVSS:3.1', 'PR', 'Privileges Required', 'Privileges an attacker needs in this deployment: N none, L low, H high. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 3, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-PR', 'N', 0.85, 0.85);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-PR', 'L', 0.62, 0.68);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-PR', 'H', 0.27, 0.5);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-UI', 'CVSS:3.1', 'UI', 'User Interaction', 'Whether a user must act for the attack to succeed here: N none, R required. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 4);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-UI', 'CVSS:3.1', 'UI', 'User Interaction', 'Whether a user must act for the attack to succeed here: N none, R required. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 4, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-UI', 'N', 0.85, 0.85);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-UI', 'R', 0.62, 0.62);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-S', 'CVSS:3.1', 'S', 'Scope', 'Whether exploitation can affect components beyond the vulnerable one here: U unchanged, C changed. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 5);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-S', 'CVSS:3.1', 'S', 'Scope', 'Whether exploitation can affect components beyond the vulnerable one here: U unchanged, C changed. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 5, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-S', 'U', 0, 0);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-S', 'C', 0, 0);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-C', 'CVSS:3.1', 'C', 'Confidentiality Impact', 'Confidentiality loss in this deployment: H high, L low, N none. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 6);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-C', 'CVSS:3.1', 'C', 'Confidentiality Impact', 'Confidentiality loss in this deployment: H high, L low, N none. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 6, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-C', 'H', 0.56, 0.56);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-C', 'L', 0.22, 0.22);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-C', 'N', 0, 0);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-I', 'CVSS:3.1', 'I', 'Integrity Impact', 'Integrity loss in this deployment: H high, L low, N none. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 7);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-I', 'CVSS:3.1', 'I', 'Integrity Impact', 'Integrity loss in this deployment: H high, L low, N none. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 7, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-I', 'H', 0.56, 0.56);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-I', 'L', 0.22, 0.22);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-I', 'N', 0, 0);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-A', 'CVSS:3.1', 'A', 'Availability Impact', 'Availability loss in this deployment: H high, L low, N none. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 8);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-A', 'CVSS:3.1', 'A', 'Availability Impact', 'Availability loss in this deployment: H high, L low, N none. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 8, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-A', 'H', 0.56, 0.56);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-A', 'L', 0.22, 0.22);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-A', 'N', 0, 0);
 
 -- The Security Requirements: not part of the baseline vector, so the model is their only source. An
 -- abstention weighs 1.0, which the calculator applies as the neutral factor rather than storing it.
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-CR', 'CVSS:3.1', 'CR', 'Confidentiality Requirement', 'How much the confidentiality of the data this application handles matters. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 9);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-CR', 'CVSS:3.1', 'CR', 'Confidentiality Requirement', 'How much the confidentiality of the data this application handles matters. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 9, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-CR', 'H', 1.5, 1.5);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-CR', 'M', 1.0, 1.0);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-CR', 'L', 0.5, 0.5);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-IR', 'CVSS:3.1', 'IR', 'Integrity Requirement', 'How much the integrity of the data this application handles matters. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 10);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-IR', 'CVSS:3.1', 'IR', 'Integrity Requirement', 'How much the integrity of the data this application handles matters. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 10, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-IR', 'H', 1.5, 1.5);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-IR', 'M', 1.0, 1.0);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-IR', 'L', 0.5, 0.5);
-INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal) VALUES ('CVSS31-AR', 'CVSS:3.1', 'AR', 'Availability Requirement', 'How much the availability of this application matters. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 11);
+INSERT INTO scheme_metric (id, scheme_id, code, label, guidance, ordinal, catalog_version) VALUES ('CVSS31-AR', 'CVSS:3.1', 'AR', 'Availability Requirement', 'How much the availability of this application matters. Answer X (Not Defined) when the declared context gives no evidence: the baseline value is kept.', 11, 'cvss31-context-v1');
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AR', 'H', 1.5, 1.5);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AR', 'M', 1.0, 1.0);
 INSERT INTO scheme_metric_value (metric_id, code, weight, weight_when_scope_changed) VALUES ('CVSS31-AR', 'L', 0.5, 0.5);

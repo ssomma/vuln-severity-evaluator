@@ -40,6 +40,10 @@ Además, los factory methods estáticos se llaman `create<ClassName>` y viven en
 fábrica aparte. Y donde una utilidad de Spring ya normaliza una comprobación (`StringUtils.hasText`,
 `CollectionUtils.isEmpty`, `Assert`), se usa en vez de escribir un método privado de guarda.
 
+Cuando varios datos inmutables forman una identidad persistida, se agrupan en un value object de primer nivel.
+`EvaluationConfiguration` es un `record` `@Embeddable`: mantiene juntas las versiones de modelo, prompt, catálogo
+y política, mientras JPA las guarda en la misma fila de la evaluación.
+
 El contrapeso que impide que esto degenere en clases gigantes es `MethodComplexityTest`, con cinco métricas y
 **tolerancia cero**: complejidad ciclomática ≤ 5, nesting ≤ 3, ≤ 5 parámetros, ≤ 32 statements y ≤ 64 líneas por
 método. Clases abarcativas, métodos chicos.

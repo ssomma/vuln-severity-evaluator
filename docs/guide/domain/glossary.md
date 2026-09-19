@@ -17,7 +17,7 @@ Términos del dominio y de la arquitectura de **vuln-severity-evaluator**.
 | **Métrica** | Una dimensión de la severidad (alcance del ataque, impacto en confidencialidad, criticidad de la aplicación). Existe **una sola vez** en el catálogo y se lee dos veces: el valor que trae el vector baseline y el que el modelo deriva del contexto declarado |
 | **Not Defined (`X`)** | Abstención: el contexto no da evidencia sobre esa métrica, y se conserva el valor base. Preferible a adivinar. No es un valor del catálogo: aplica a toda métrica por construcción |
 | **Propuesta** (`ModelSeverityProposal`) | Lo que responde el modelo: un valor por métrica con su rationale. Se valida al construirse |
-| **Procedencia** (`Provenance`) | Bajo qué condiciones se produjo la evaluación: modelo, versión de prompt, origen del contexto y del baseline, confianza y si requiere revisión |
+| **Procedencia** (`Provenance`) | Bajo qué condiciones se produjo la evaluación: modelo, versiones de prompt, catálogo y política, origen del contexto y del baseline, confianza y si requiere revisión |
 | **Confianza** | Cuánto pesa la evaluación. Baja si el baseline lo derivó el modelo, o si el modelo se abstuvo en la mayoría de las métricas |
 | **Advisory** | El resultado es soporte a una decisión humana, nunca autorización para remediar automáticamente |
 | **Huella** (`fingerprint`) | Identidad de los insumos de una evaluación. Permite responder una request idéntica con el resultado ya registrado |

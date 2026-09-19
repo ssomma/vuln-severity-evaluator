@@ -43,6 +43,12 @@ de las métricas Environmental de CVSS, que es el formato del vector publicado. 
 separador y al asignador del vector. El criterio: la tabla de la especificación es dato, la gramática con que se
 escribe es del esquema.
 
+**La revisión del catálogo vive en `scheme_metric`.** Todas las métricas de un esquema llevan el mismo
+`catalog_version`, que representa tanto sus pesos y textos como el catálogo contextual asociado. Antes de buscar una
+evaluación por huella, el servicio consulta únicamente el valor distinto de esa columna; las métricas, valores y
+atributos completos se cargan solo cuando no hay coincidencia. Modificar cualquier fila de ambos catálogos exige
+incrementar la versión en todas las métricas del esquema dentro de la misma transacción.
+
 ## Consecuencias
 
 - **Bueno:** `Cvss31` pasó de ~600 líneas y doce tipos anidados a ~260 con un único record privado. Lo que queda son
@@ -60,6 +66,8 @@ escribe es del esquema.
   arrancar o al evaluar. Se compensa con el arranque (el seed corre al levantar) y con los golden cases.
 - **Malo:** el arranque depende de que el catálogo esté cargado. En local lo resuelve el seed; un despliegue real
   necesita que esos datos existan antes de recibir tráfico.
+- **Malo:** una modificación del catálogo y el incremento de `catalog_version` forman una sola operación lógica; las
+  migraciones deben mantenerlas atómicas.
 - **Riesgo:** una fila mal cargada produce un score plausible pero incorrecto, que es más difícil de notar que un
   error de compilación. Es la razón por la que los golden cases corren contra el catálogo real y no contra objetos
   construidos a mano en el test.

@@ -23,9 +23,10 @@ puede devolver otro número sin que nada lo explique.
 
 La evaluación se busca **por huella en la tabla de evaluaciones, antes de preguntarle al modelo**.
 
-La huella identifica los insumos: modelo, versión de prompt, identificador y vector de la vulnerabilidad, hash de su
-descripción, y el contexto declarado. Si existe una evaluación con esa huella, se devuelve esa; si no, se evalúa y se
-registra.
+La huella identifica los insumos: esquema, modelo, versión de prompt, revisión del catálogo, versión de la política,
+identificador y vector de la vulnerabilidad, descripción y contexto declarado. Si existe una evaluación con esa
+huella, se devuelve esa; si no, se evalúa y se registra. La revisión se obtiene con una consulta escalar sobre
+`scheme_metric`, por lo que una coincidencia evita cargar el catálogo completo.
 
 La decisión arquitectónica exige que esa tabla sea durable. La implementación actual es una prueba de concepto con
 H2 en memoria: demuestra el lookup por huella dentro del proceso, pero no conserva la evaluación entre reinicios.
@@ -39,9 +40,9 @@ El caché en memoria se eliminó, junto con su configuración y el decorator que
   una entrada con tiempo de vida.
 - **Límite actual:** H2 en memoria descarta esas filas al reiniciar. Es una limitación consciente de la prueba de
   concepto, no una implementación completa de la garantía de este ADR.
-- **Bueno:** el modelo y la versión de prompt forman parte de la huella, así que cambiar cualquiera de los dos produce
-  una evaluación nueva en vez de reusar razonamiento de una configuración vieja. Un caché con clave por CVE habría
-  servido reasoning obsoleto tras un cambio de prompt.
+- **Bueno:** el modelo, el prompt, el catálogo y la política están versionados en la huella. Cambiar cualquiera de
+  ellos produce una evaluación nueva en vez de reusar razonamiento o reglas anteriores. Un caché con clave por CVE
+  habría servido reasoning obsoleto tras uno de esos cambios.
 - **Bueno:** desaparecieron tres piezas — la dependencia de Caffeine, su clase de configuración y el decorator — y la
   idempotencia pasó a ser parte del caso de uso, que es donde se entiende por qué existe.
 - **Bueno:** el ahorro de costo se mantiene, pero deja de ser la justificación principal: es una consecuencia de una
