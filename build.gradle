@@ -40,6 +40,7 @@ dependencies {
     testImplementation('com.tngtech.archunit:archunit-junit5:1.5.0')
     testImplementation('jakarta.persistence:jakarta.persistence-api:3.2.0')
     testImplementation('com.github.javaparser:javaparser-core:3.27.0')
+    testImplementation('com.squareup.okhttp3:mockwebserver:4.12.0')
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 

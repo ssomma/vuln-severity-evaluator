@@ -196,7 +196,7 @@ automática— en [Uso de IA y sus límites](/architecture/ai-usage-and-limits) 
   cargar el catálogo completo y llamar al modelo; si alguna cambia, produce una evaluación nueva.
 - **Observabilidad** — `EvaluationMetrics` cuenta rechazos de schema, evaluaciones y reutilizaciones. La tasa de
   rechazos es el indicador temprano de drift.
-- **Testabilidad** — 57 tests. La aritmética se verifica contra la especificación publicada *y* contra los
+- **Testabilidad** — La aritmética se verifica contra la especificación publicada *y* contra los
   coeficientes del seed; el flujo completo, con el modelo determinista.
 - **Mantenibilidad enforced** — capas, residencia de anotaciones, naming y cinco métricas de complejidad con
   tolerancia cero fallan el build. Ver [Arquitectura](/architecture/).
