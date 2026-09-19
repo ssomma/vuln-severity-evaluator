@@ -25,7 +25,13 @@ import static org.challenge.vulnseverityevaluator.domain.model.SeverityRating.HI
 @Component
 public class EvaluationPolicy {
 
+    /** Increment whenever a confidence or review rule changes. It participates in the evaluation fingerprint. */
+    private static final String VERSION = "evaluation-policy-v1";
     private static final BigDecimal SIGNIFICANT_DELTA = new BigDecimal("2.0");
+
+    public String version() {
+        return VERSION;
+    }
 
     /**
      * Confidence degrades for the two reasons that actually matter: the anchor was inferred instead of supplied, or

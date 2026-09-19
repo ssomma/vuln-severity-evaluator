@@ -1,12 +1,6 @@
 package org.challenge.vulnseverityevaluator.domain.model;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -44,6 +38,13 @@ public class SchemeMetric {
 
     private String schemeId;
 
+    /**
+     * Revision of the scoring specification and its associated context catalog. Every metric of one scheme carries
+     * the same value, which lets the service read the identity as a scalar without materialising the catalog.
+     */
+    @Column(nullable = false)
+    private String catalogVersion;
+
     private String code;
 
     private String label;
@@ -61,6 +62,10 @@ public class SchemeMetric {
 
     public String code() {
         return code;
+    }
+
+    public String catalogVersion() {
+        return catalogVersion;
     }
 
     public String label() {

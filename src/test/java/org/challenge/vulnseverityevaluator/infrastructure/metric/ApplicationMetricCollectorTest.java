@@ -30,6 +30,7 @@ import static org.challenge.vulnseverityevaluator.domain.model.Confidence.LOW;
 import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.COMPENSATING_CONTROL;
 import static org.challenge.vulnseverityevaluator.domain.model.ContextAttribute.Kind.RUNTIME;
 import static org.challenge.vulnseverityevaluator.domain.model.DataClassification.FINANCIAL;
+import static org.challenge.vulnseverityevaluator.domain.model.EvaluationConfiguration.createEvaluationConfiguration;
 import static org.challenge.vulnseverityevaluator.domain.model.Exposure.INTERNET_FACING;
 import static org.challenge.vulnseverityevaluator.domain.model.MetricChoice.createMetricChoice;
 import static org.challenge.vulnseverityevaluator.domain.model.Provenance.createProvenance;
@@ -293,7 +294,9 @@ class ApplicationMetricCollectorTest {
     private static VulnerabilityEvaluation evaluation() {
         return createVulnerabilityEvaluation(vulnerability(VECTOR), context(),
                 assessment(SeverityRating.HIGH, SeverityRating.CRITICAL),
-                createProvenance("stub-deterministic", "stub-v1", CALLER_SUPPLIED, LOW, true));
+                createProvenance(createEvaluationConfiguration(
+                                "stub-deterministic", "stub-v1", "catalog-v1", "policy-v1"),
+                        CALLER_SUPPLIED, LOW, true));
     }
 
     private static MockHttpServletRequest request() {

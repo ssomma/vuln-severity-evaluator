@@ -1,10 +1,6 @@
 package org.challenge.vulnseverityevaluator.domain.service.impl;
 
-import org.challenge.vulnseverityevaluator.domain.model.ApplicationContext;
-import org.challenge.vulnseverityevaluator.domain.model.Provenance;
-import org.challenge.vulnseverityevaluator.domain.model.SeverityAssessment;
-import org.challenge.vulnseverityevaluator.domain.model.VulnerabilityEvaluation;
-import org.challenge.vulnseverityevaluator.domain.model.Vulnerability;
+import org.challenge.vulnseverityevaluator.domain.model.*;
 import org.challenge.vulnseverityevaluator.domain.service.VulnerabilitySeverityService;
 
 import java.math.BigDecimal;
@@ -14,6 +10,7 @@ import java.util.UUID;
 
 import static org.challenge.vulnseverityevaluator.domain.model.BaselineVectorSource.CALLER_SUPPLIED;
 import static org.challenge.vulnseverityevaluator.domain.model.Confidence.HIGH;
+import static org.challenge.vulnseverityevaluator.domain.model.EvaluationConfiguration.createEvaluationConfiguration;
 import static org.challenge.vulnseverityevaluator.domain.model.MetricChoice.createMetricChoice;
 import static org.challenge.vulnseverityevaluator.domain.model.Provenance.createProvenance;
 import static org.challenge.vulnseverityevaluator.domain.model.SeverityRating.CRITICAL;
@@ -50,7 +47,9 @@ public class FakeSeverityService implements VulnerabilitySeverityService {
         Optional.ofNullable(failure).ifPresent(exception -> {
             throw exception;
         });
-        Provenance provenance = createProvenance("fake-model", "fake-v1", CALLER_SUPPLIED, HIGH, true);
+        Provenance provenance = createProvenance(
+                createEvaluationConfiguration("fake-model", "fake-v1", "catalog-v1", "policy-v1"),
+                CALLER_SUPPLIED, HIGH, true);
         return createVulnerabilityEvaluation(vulnerability, context, assessment(), provenance);
     }
 

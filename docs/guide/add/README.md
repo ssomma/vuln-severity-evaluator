@@ -116,7 +116,8 @@ sequenceDiagram
     participant P as EvaluationPolicy
 
     C->>S: evaluate(vulnerability, context)
-    S->>R: ¿existe evaluación con esta huella?
+    S->>K: versión del catálogo (consulta escalar)
+    S->>R: ¿existe evaluación con esta huella versionada?
     R-->>C: si existe, esa misma (sin preguntarle al modelo)
     S->>K: especificación del esquema + significado del contexto declarado
     S->>M: propone métricas, acotado por el vocabulario
@@ -191,8 +192,8 @@ automática— en [Uso de IA y sus límites](/architecture/ai-usage-and-limits) 
 
 - **Escalabilidad** — endpoint sin estado; el cuello de botella es el proveedor. El lookup por huella evita llamadas
   repetidas; el camino de lote queda fuera de alcance.
-- **Costo** — la huella incluye modelo y versión de prompt, así que cambiar cualquiera de los dos produce una
-  evaluación nueva en vez de reusar razonamiento de una configuración vieja.
+- **Costo** — la huella incluye modelo, prompt, catálogo y política. Si esas versiones coinciden, el lookup evita
+  cargar el catálogo completo y llamar al modelo; si alguna cambia, produce una evaluación nueva.
 - **Observabilidad** — `EvaluationMetrics` cuenta rechazos de schema, evaluaciones y reutilizaciones. La tasa de
   rechazos es el indicador temprano de drift.
 - **Testabilidad** — 57 tests. La aritmética se verifica contra la especificación publicada *y* contra los
