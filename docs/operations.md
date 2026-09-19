@@ -36,3 +36,22 @@ Una evaluación es un registro inmutable con su procedencia. Ante un resultado s
 `GET /vulnerability-evaluations/{id}` y mirar `provenance`: qué modelo y versiones de prompt, catálogo y política se
 usaron, si el baseline lo mandó el caller o lo derivó el modelo, y qué contexto se declaró. Casi siempre la
 explicación está ahí.
+
+## Cachés de base de datos
+
+Las lecturas de catálogos y evaluaciones usan cachés Caffeine locales a cada instancia. Los catálogos expiran una
+hora después de cargarse y las evaluaciones a los cinco minutos. Las entradas están limitadas para que el volumen de
+consultas no produzca crecimiento de memoria sin control; los resultados inexistentes de evaluaciones no se cachean.
+
+Los valores pueden cambiarse por perfil de Spring o mediante las variables de entorno que Spring deriva de estas
+propiedades:
+
+| Propiedad | Variable de entorno | Valor inicial |
+|---|---|---:|
+| `app.cache.catalog.ttl` | `APP_CACHE_CATALOG_TTL` | `1h` |
+| `app.cache.catalog.maximum-size` | `APP_CACHE_CATALOG_MAXIMUM_SIZE` | `128` |
+| `app.cache.evaluation.ttl` | `APP_CACHE_EVALUATION_TTL` | `5m` |
+| `app.cache.evaluation.maximum-size` | `APP_CACHE_EVALUATION_MAXIMUM_SIZE` | `10000` |
+
+No hay coordinación entre instancias. Una modificación directa de un catálogo puede tardar hasta el TTL configurado
+en observarse en todas ellas; una evaluación nueva sí es visible de inmediato porque los misses no se conservan.
