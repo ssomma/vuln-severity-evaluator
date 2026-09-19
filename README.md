@@ -78,7 +78,7 @@ cliente y sus credenciales; no cambian el cálculo de severidad.
 ./gradlew test
 ```
 
-57 tests. Incluyen los vectores oficiales de la especificación CVSS v3.1, que validan tanto las fórmulas como los
+La suite incluye los vectores oficiales de la especificación CVSS v3.1, que validan tanto las fórmulas como los
 coeficientes cargados en la base.
 
 ---

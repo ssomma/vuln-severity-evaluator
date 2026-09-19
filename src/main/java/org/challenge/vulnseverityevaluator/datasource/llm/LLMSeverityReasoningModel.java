@@ -4,8 +4,10 @@ import org.challenge.vulnseverityevaluator.domain.model.*;
 import org.challenge.vulnseverityevaluator.infrastructure.ModelAnswerUnusableException;
 import org.challenge.vulnseverityevaluator.infrastructure.ModelProviderException;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -14,6 +16,7 @@ import static java.util.stream.Collectors.joining;
 import static org.challenge.vulnseverityevaluator.domain.model.MetricChoice.createMetricChoice;
 import static org.challenge.vulnseverityevaluator.domain.model.ModelSeverityProposal.createModelSeverityProposal;
 import static org.challenge.vulnseverityevaluator.infrastructure.metric.ApplicationMetricCollector.ResourceMetrics.collectResourceModelCall;
+import static org.springframework.ai.chat.client.ChatClientAttributes.OUTPUT_FORMAT;
 
 /**
  * Asks a language model, through Spring AI, for the contextual metric values of the active scheme.
@@ -65,7 +68,8 @@ public class LLMSeverityReasoningModel implements SeverityReasoningModel {
     @Override
     public ModelSeverityProposal propose(Vulnerability vulnerability, List<ContextAttribute> context,
                                          List<SchemeMetric> vocabulary, String schemeId) {
-        ProposalAnswer answer = recorded(PROPOSAL_OPERATION, () -> chatClient.prompt()
+        BeanOutputConverter<ProposalAnswer> converter = new BeanOutputConverter<>(ProposalAnswer.class);
+        String content = recorded(PROPOSAL_OPERATION, () -> chatClient.prompt()
                 .system(spec -> spec.text(prompts.contextualSystem())
                         .param(SCHEME_PARAMETER, schemeId)
                         .param(VOCABULARY_PARAMETER, renderedVocabulary(vocabulary)))
@@ -73,9 +77,14 @@ public class LLMSeverityReasoningModel implements SeverityReasoningModel {
                         .param(IDENTIFIER_PARAMETER, vulnerability.identifier())
                         .param(DESCRIPTION_PARAMETER, vulnerability.description())
                         .param(CONTEXT_PARAMETER, renderedContext(context)))
+                .advisors(spec -> spec.param(OUTPUT_FORMAT.getKey(), converter.getFormat()))
                 .call()
-                .entity(ProposalAnswer.class));
+                .content());
         try {
+            ProposalAnswer answer = converter.convert(content);
+            if (answer == null) {
+                throw new IllegalArgumentException("the model returned an empty proposal");
+            }
             return answer.toProposal(vocabulary);
         } catch (RuntimeException exception) {
             throw new ModelAnswerUnusableException("the model returned an invalid proposal", exception);
@@ -84,14 +93,24 @@ public class LLMSeverityReasoningModel implements SeverityReasoningModel {
 
     @Override
     public String deriveBaselineVector(Vulnerability vulnerability, String schemeId) {
-        VectorAnswer answer = recorded(BASELINE_VECTOR_OPERATION, () -> chatClient.prompt()
+        BeanOutputConverter<VectorAnswer> converter = new BeanOutputConverter<>(VectorAnswer.class);
+        String content = recorded(BASELINE_VECTOR_OPERATION, () -> chatClient.prompt()
                 .system(spec -> spec.text(prompts.baselineSystem()).param(SCHEME_PARAMETER, schemeId))
                 .user(spec -> spec.text(prompts.baselineUser())
                         .param(IDENTIFIER_PARAMETER, vulnerability.identifier())
                         .param(DESCRIPTION_PARAMETER, vulnerability.description()))
+                .advisors(spec -> spec.param(OUTPUT_FORMAT.getKey(), converter.getFormat()))
                 .call()
-                .entity(VectorAnswer.class));
-        return answer.vector();
+                .content());
+        try {
+            VectorAnswer answer = converter.convert(content);
+            if (answer == null || !StringUtils.hasText(answer.vector())) {
+                throw new IllegalArgumentException("the model returned an empty baseline vector");
+            }
+            return answer.vector();
+        } catch (RuntimeException exception) {
+            throw new ModelAnswerUnusableException("the model returned an invalid baseline vector", exception);
+        }
     }
 
     /**
