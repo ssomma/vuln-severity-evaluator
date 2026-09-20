@@ -22,7 +22,7 @@ class GrokProviderProfileTest {
 
     @Test
     void givenGrokProductionProfileWhenStartingThenReturnExternalModelAndSeededCatalog() {
-        assertThat(model.identifier()).isEqualTo("grok/grok-4");
+        assertThat(model.identifier()).isEqualTo("grok/grok-4.6");
         assertThat(catalog.specification("CVSS:3.1")).hasSize(11);
     }
 }

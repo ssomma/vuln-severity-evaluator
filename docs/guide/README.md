@@ -24,6 +24,7 @@ CVE-2021-44228 (Log4Shell), mismo vector base:
 | [Endpoints](/architecture/endpoints) | El contrato HTTP y los criterios que fijan su firma |
 | [Arquitectura](/architecture/) | Capas, residencia de anotaciones y guardrails |
 | [Dominio](/domain/) | Qué se evalúa, con qué insumos y qué confiabilidad tiene cada uno |
+| [Validación con modelos reales](/architecture/external-model-validation) | Evidencia E2E contra xAI/Grok sin incorporar infraestructura externa a los tests |
 | [Proceso de investigación](/_meta/research-log) | Qué hubo que mirar y qué cambió por haberlo mirado |
 
 ---

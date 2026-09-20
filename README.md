@@ -23,13 +23,22 @@ No hace falta API key ni red: el perfil por defecto es `local`, con modelo deter
 ./gradlew bootRun
 ```
 
-```bash
-curl -s -X POST http://localhost:8080/vulnerability-evaluations \
-  -H 'Content-Type: application/json' \
-  -d @docs/examples/log4shell-tier1.json | jq
+En otra terminal, ejecutar los ocho ejemplos versionados con el runner portable:
+
+```text
+python scripts/model-evaluation-suite.py --base-url http://localhost:8080 --provider-label local --model-label stub-deterministic --expected-provenance-model stub-deterministic --output build/model-evaluations/local.json --verify-idempotency
 ```
 
-Para ver la contextualización, comparar con `docs/examples/log4shell-tier3.json`: el mismo CVE, otra aplicación.
+Los requests están en [`scripts/model-evaluation-cases.json`](scripts/model-evaluation-cases.json) e incluyen casos de
+coincidencia, aislamiento, red interna, WAF, validación estricta, protección en runtime y requisitos bajos. Cada caso
+declara por separado la relación esperada entre scores y las métricas que la evidencia del escenario debe sostener.
+El runner valida ambos oráculos, además del contrato HTTP, la persistencia por `GET`, provenance e idempotencia, y
+conserva el detalle en el JSON indicado por `--output`.
+
+El stub local sirve para ejercitar el flujo sin red ni API key, no como modelo candidato. También permite comprobar
+que el contrato de cada fixture es consistente con el catálogo antes de consumir infraestructura externa. La
+ejecución contra infraestructura real se conserva en el
+[validación arquitectónica con Grok](docs/guide/architecture/external-model-validation.md).
 
 ## Proveedores externos y modelos
 
@@ -44,7 +53,7 @@ export OPENAI_API_KEY='tu-api-key'
 ./gradlew bootRun --args='--spring.profiles.active=production-openai'
 ```
 
-El perfil `production-grok` usa la API compatible con OpenAI de xAI Grok con `grok-4`:
+El perfil `production-grok` usa la API compatible con OpenAI de xAI Grok con `grok-4.6`:
 
 ```bash
 export GROK_API_KEY='tu-api-key'
@@ -81,6 +90,12 @@ cliente y sus credenciales; no cambian el cálculo de severidad.
 La suite incluye los vectores oficiales de la especificación CVSS v3.1, que validan tanto las fórmulas como los
 coeficientes cargados en la base.
 
+Para validar end to end un modelo o proveedor ya configurado se incluye un runner portable en
+[`scripts/model-evaluation-suite.py`](scripts/model-evaluation-suite.py), basado únicamente en Python 3.10+. Los ocho
+fixtures están en [`scripts/model-evaluation-cases.json`](scripts/model-evaluation-cases.json). El procedimiento,
+resultados y límites de una ejecución real se documentan en el
+[validación de la integración externa](docs/guide/architecture/external-model-validation.md).
+
 ---
 
 ## La idea en una línea
@@ -107,6 +122,7 @@ npx docsify-cli serve docs/guide
 | [ADRs](docs/guide/adr/) | Las seis decisiones, con sus alternativas descartadas |
 | [Endpoints](docs/guide/architecture/endpoints.md) | El contrato HTTP |
 | [Arquitectura](docs/guide/architecture/README.md) | Capas y guardrails |
+| [Validación con modelos externos](docs/guide/architecture/external-model-validation.md) | Evidencia de la ejecución E2E contra modelos reales de Grok |
 | [Proceso de investigación](docs/guide/_meta/research-log.md) | Qué hubo que mirar y qué cambió por haberlo mirado |
 
 ---

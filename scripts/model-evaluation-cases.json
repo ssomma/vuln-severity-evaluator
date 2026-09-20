@@ -1,0 +1,138 @@
+[
+  {
+    "case": "01-score-coincide-con-requisitos-neutros",
+    "expected": { "score_relation": "MATCH", "metrics": { "CR": "M", "IR": "M", "AR": "M" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0001",
+        "description": "Una solicitud de red especialmente construida permite a un atacante no autenticado leer y modificar datos del componente vulnerable y detener su servicio, sin interacción de un usuario. El impacto no cruza el límite de seguridad del componente.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-neutral-internet",
+        "risk_profile": { "exposure": "INTERNET_FACING", "data_classification": "INTERNAL", "business_criticality": "TIER_2" },
+        "runtime": ["JAVA"],
+        "compensating_controls": []
+      }
+    }
+  },
+  {
+    "case": "02-score-coincide-por-saturacion",
+    "expected": { "score_relation": "MATCH", "metrics": { "CR": "H", "IR": "H", "AR": "H" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0002",
+        "description": "Una solicitud remota especialmente construida permite a un atacante no autenticado comprometer por completo la confidencialidad, integridad y disponibilidad del componente vulnerable y de recursos bajo otra autoridad de seguridad, sin interacción del usuario.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-tier1-pii",
+        "risk_profile": { "exposure": "INTERNET_FACING", "data_classification": "PII", "business_criticality": "TIER_1" },
+        "runtime": ["JAVA", "SPRING_BOOT"],
+        "compensating_controls": []
+      }
+    }
+  },
+  {
+    "case": "03-score-difiere-por-aislamiento",
+    "expected": { "score_relation": "DIFFERENT", "metrics": { "AV": "L", "CR": "L", "IR": "L", "AR": "L" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0003",
+        "description": "La vulnerabilidad permite compromiso completo mediante una solicitud de red no autenticada. En este despliegue el componente no acepta conexiones entrantes y solo puede ser operado desde el host que lo ejecuta.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-isolated-public",
+        "risk_profile": { "exposure": "ISOLATED", "data_classification": "PUBLIC", "business_criticality": "TIER_3" },
+        "runtime": ["JAVA"],
+        "compensating_controls": ["NETWORK_SEGMENTATION", "LEAST_PRIVILEGE_RUNTIME"]
+      }
+    }
+  },
+  {
+    "case": "04-score-difiere-por-segmento-local",
+    "expected": { "score_relation": "DIFFERENT", "metrics": { "AV": "A", "CR": "H", "IR": "M", "AR": "M" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0004",
+        "description": "Una solicitud de red no autenticada puede comprometer por completo el componente. El despliegue solo admite tráfico originado en el mismo segmento local confiable; no existe una ruta desde otras redes internas ni desde Internet.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-internal-financial",
+        "risk_profile": { "exposure": "INTERNAL_NETWORK", "data_classification": "FINANCIAL", "business_criticality": "TIER_2" },
+        "runtime": ["DOTNET"],
+        "compensating_controls": []
+      }
+    }
+  },
+  {
+    "case": "05-score-difiere-por-regla-waf-especifica",
+    "expected": { "score_relation": "DIFFERENT", "metrics": { "AC": "H", "CR": "H", "IR": "H", "AR": "H" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0005",
+        "description": "Una inyección en un parámetro HTTP permite compromiso completo sin autenticación. En este despliegue una regla del WAF probada específicamente contra el exploit rechaza el patrón directo; un ataque exitoso necesita construir una variante capaz de evadirla.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-waf-credentials",
+        "risk_profile": { "exposure": "INTERNET_FACING", "data_classification": "CREDENTIALS", "business_criticality": "TIER_1" },
+        "runtime": ["NODE", "EXPRESS"],
+        "compensating_controls": ["EXPLOIT_SPECIFIC_WAF_RULE"]
+      }
+    }
+  },
+  {
+    "case": "06-score-difiere-por-validacion",
+    "expected": { "score_relation": "DIFFERENT", "metrics": { "AC": "H", "CR": "L", "IR": "L", "AR": "L" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0006",
+        "description": "Una inyección mediante entrada no autenticada permite compromiso completo. El despliegue valida ese campo contra una lista cerrada que excluye la sintaxis del exploit; para alcanzar el componente vulnerable es necesario encontrar una evasión de esa validación.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-validation-public",
+        "risk_profile": { "exposure": "INTERNET_FACING", "data_classification": "PUBLIC", "business_criticality": "TIER_3" },
+        "runtime": ["PYTHON", "DJANGO"],
+        "compensating_controls": ["STRICT_INPUT_VALIDATION"]
+      }
+    }
+  },
+  {
+    "case": "07-score-difiere-por-proteccion-runtime",
+    "expected": { "score_relation": "DIFFERENT", "metrics": { "AC": "H", "CR": "M", "IR": "M", "AR": "M" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0007",
+        "description": "Una solicitud remota no autenticada dispara corrupción de memoria y permite compromiso completo. El agente de protección activo detecta y bloquea la secuencia normal del exploit; para tener éxito es necesario evadir su instrumentación en tiempo de ejecución.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-runtime-protection",
+        "risk_profile": { "exposure": "INTERNET_FACING", "data_classification": "INTERNAL", "business_criticality": "TIER_2" },
+        "runtime": ["GO", "CONTAINER"],
+        "compensating_controls": ["RUNTIME_PROTECTION"]
+      }
+    }
+  },
+  {
+    "case": "08-score-difiere-por-requisitos-bajos",
+    "expected": { "score_relation": "DIFFERENT", "metrics": { "CR": "L", "IR": "L", "AR": "L" } },
+    "body": {
+      "vulnerability": {
+        "identifier": "CVE-DEMO-2026-0008",
+        "description": "Una solicitud de red especialmente construida permite compromiso completo del componente sin autenticación ni interacción de usuario. El impacto permanece dentro del componente vulnerable.",
+        "baseline_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "application": {
+        "name": "demo-low-requirements",
+        "risk_profile": { "exposure": "INTERNET_FACING", "data_classification": "PUBLIC", "business_criticality": "TIER_3" },
+        "runtime": ["RUST"],
+        "compensating_controls": []
+      }
+    }
+  }
+]

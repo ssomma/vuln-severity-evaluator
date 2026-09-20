@@ -5,6 +5,7 @@
   * [Endpoints](/architecture/endpoints)
   * [Modelo de datos](/architecture/data-model)
   * [Uso de IA y sus límites](/architecture/ai-usage-and-limits)
+  * [Validación con modelos reales](/architecture/external-model-validation)
 * [ADRs](/adr/)
 * [RFCs](/rfcs/)
 * [**Dominio**](/domain/)
