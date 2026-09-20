@@ -4,11 +4,9 @@ Este directorio contiene los procedimientos operacionales de
 **vuln-severity-evaluator**. Cada runbook describe cómo responder a un evento
 o ejecutar una tarea operacional específica.
 
-## Índice
-
-| Runbook | Trigger | Criticidad |
-|---------|---------|-----------|
-| *(sin runbooks aún)* | — | — |
+Actualmente no hay procedimientos operacionales versionados en esta sección. La comprobación puntual del límite con
+proveedores externos está documentada dentro de [Arquitectura](/architecture/external-model-validation), no como un
+runbook.
 
 ---
 
