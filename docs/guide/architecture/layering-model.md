@@ -184,7 +184,9 @@ La regla sobre `@Entity` es la que formaliza, a nivel de CI, la decisión de la 
 
 ### 6.3 Convención de nombres de test (líneas 112-118)
 
-Además de las reglas de capas, el archivo valida que todo método `@Test` siga el patrón `given.+When.+Then[DoNotThrow|Return|Set|Throw].+` (Given-When-Then). No es una regla de capas, pero forma parte del mismo mecanismo de fitness functions que mantiene la arquitectura de tests consistente en todo el repositorio.
+Además de las reglas de capas, el archivo valida que todo método `@Test` siga el patrón
+`given.+When.+Then(DoNotThrow|Return|Set|Throw).+` (Given-When-Then). No es una regla de capas, pero forma parte del
+mismo mecanismo de fitness functions que mantiene la arquitectura de tests consistente en todo el repositorio.
 
 ### 6.4 Consideraciones prácticas
 

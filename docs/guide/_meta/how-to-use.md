@@ -63,9 +63,10 @@ Estas convenciones fallan el build (`./gradlew test`) si se rompen:
   en `ArchitectureTest`.
 - **Anotación ↔ paquete** — `@Configuration`, `@Controller`, `@Service`,
   `@Entity` y `@Repository` deben residir en su paquete de capa correspondiente.
-- **Nomenclatura de tests** — `given<Setup>When<Action>Then[DoNotThrow|Return|Set|Throw]<Outcome>`.
-- **Complejidad de métodos** — cyclomatic complexity > 10 tolerado en, como
-  máximo, 5 métodos de todo `src/main`.
+- **Nomenclatura de tests** — `given<Setup>When<Action>Then(DoNotThrow|Return|Set|Throw)<Outcome>`.
+- **Complejidad de métodos** — tolerancia cero para métodos que excedan cualquiera de estos umbrales:
+  complejidad ciclomática 5, profundidad de anidamiento 3, cantidad de parámetros 5, 32 líneas lógicas o
+  64 líneas físicas. El guardrail también falla si no puede parsear algún archivo de `src/main`.
 
 Detalle en [Arquitectura](/architecture/) y el
 [Modelo de capas](/architecture/layering-model).

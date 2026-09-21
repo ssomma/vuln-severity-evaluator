@@ -20,7 +20,7 @@ CVE-2021-44228 (Log4Shell), mismo vector base:
 |---|---|
 | [**ADD**](/add/) | El diseño de la solución completo: drivers, alcance, flujo, seguridad, riesgos abiertos |
 | [Uso de IA y sus límites](/architecture/ai-usage-and-limits) | Dónde se usa IA, dónde deliberadamente no, y qué puede salir mal |
-| [ADRs](/adr/) | Las seis decisiones, cada una con sus alternativas descartadas |
+| [ADRs](/adr/) | Las siete decisiones, cada una con sus alternativas descartadas |
 | [Endpoints](/architecture/endpoints) | El contrato HTTP y los criterios que fijan su firma |
 | [Arquitectura](/architecture/) | Capas, residencia de anotaciones y guardrails |
 | [Dominio](/domain/) | Qué se evalúa, con qué insumos y qué confiabilidad tiene cada uno |

@@ -61,9 +61,9 @@ dependencia cruzada que justificar.
 
 ## Qué vive en cada capa
 
-- **`domain/model`** — solo datos: la entidad, sus embeddables, los value objects y los enums. Nada que calcule. La
-  única excepción es la validación de `ModelSeverityProposal`, porque ese value object *es* la traducción de la
-  respuesta de un origen de datos.
+- **`domain/model`** — la entidad, sus embeddables, los value objects y los enums. Conserva comportamiento propio de
+  esos tipos, como la huella estable y el delta de una evaluación, además de la validación de
+  `ModelSeverityProposal`; la orquestación y el cálculo del esquema permanecen en `domain/service`.
 - **`domain/service`** — el comportamiento: `SeverityScheme` y `Cvss31`, `EvaluationPolicy` (confianza y revisión),
   `SpecificationCatalog` (especificación y vocabulario), y el caso de uso. Los dos primeros son `@Service`; los que
   presentation no consume directamente son `@Component`.
