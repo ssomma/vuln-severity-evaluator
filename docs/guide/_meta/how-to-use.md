@@ -47,6 +47,7 @@ sincronizada con el código.
 | Dónde se usa IA, sus riesgos y sus límites | `docs/guide/architecture/ai-usage-and-limits.md` |
 | Cómo se investigó una decisión | `docs/guide/_meta/research-log.md` |
 | Cómo operar / debugear en producción | `docs/guide/runbooks/NNNN-<slug>.md` |
+| Evidencia que valida un límite arquitectónico contra infraestructura externa | `docs/guide/architecture/<concern>-validation.md` |
 | Post-incidente con lecciones aprendidas | `docs/guide/postmortems/PM-NNNN-<slug>.md` |
 | Una convención de código que hay que **enforcar** | `src/test/java/.../ArchitectureTest.java` o `MethodComplexityTest.java` |
 | Stack, versiones, getting started | `docs/guide/README.md`; el `README.md` de la raíz es la puerta de entrada corta |
@@ -94,6 +95,9 @@ Detalle en [Arquitectura](/architecture/) y el
 □ ¿Se creó un procedimiento operacional?
   → Crear docs/guide/runbooks/NNNN-<slug>.md
 
+□ ¿Se validó manualmente un límite arquitectónico contra infraestructura externa?
+  → Documentar la evidencia junto al concern correspondiente en docs/guide/architecture/
+
 □ ¿Hubo un incidente?
   → Crear docs/guide/postmortems/PM-NNNN-<slug>.md
 
@@ -109,7 +113,8 @@ Detalle en [Arquitectura](/architecture/) y el
 ## Reglas de oro
 
 1. **Una sola fuente por tipo de doc** — si el mismo contenido está en dos lugares, uno está desactualizado.
-2. **`docs/guide/` es el estado vivo** — documenta cómo funciona el sistema HOY, no la historia (eso va en ADRs y postmortems).
+2. **`docs/guide/` mantiene contexto junto** — la evidencia que valida un límite forma parte de su documentación de
+   arquitectura; decisiones e incidentes viven en ADRs y postmortems.
 3. **Las convenciones se enforcan, no se piden por favor** — si una regla importa, vive en un guardrail de `src/test/`, no solo en prosa.
 4. **ADRs no se editan post-accepted** — si una decisión cambia, se crea una nueva ADR que la reemplaza.
 5. **Sin stubs vacíos** — si no hay contenido real, no crear el archivo; mejor un índice de sección. `endpoints.md`, `data-model.md` y `ai-usage-and-limits.md` se crearon recién cuando hubo endpoint, entidades y un modelo integrado que documentar.

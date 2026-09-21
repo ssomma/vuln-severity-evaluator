@@ -48,6 +48,10 @@ graph TD
 fuente directa; `datasource/llm` es una opinión de un modelo. Son dos cosas con confiabilidad distinta, y darle capa
 propia hace que la distinción sea estructural y verificada en cada build, no una convención de nombres.
 
+La capa fue ejercitada además contra modelos reales de xAI sin incorporar esa dependencia externa a la suite de
+tests. La evidencia, los resultados y los límites de esa comprobación están en
+[Validación con modelos reales](/architecture/external-model-validation).
+
 **Model e Infrastructure no se conocen.** La dirección `Model → Infrastructure` está prohibida, y la inversa también.
 Durante la implementación hubo dos concesiones intermedias en ambos sentidos, y ambas desaparecieron al señalizar los
 fallos con `Assert` y tipos del JDK en vez de excepciones propias: sin clases de excepción compartidas, no queda
@@ -153,6 +157,7 @@ confirmar que el build falla, revertir.
 
 - [ADD](/add/) — el diseño de la solución
 - [Modelo de capas](/architecture/layering-model) — cómo funciona el sistema de capas y por qué
+- [Validación con modelos reales](/architecture/external-model-validation) — evidencia E2E del límite LLM
 - [Endpoints](/architecture/endpoints) · [Modelo de datos](/architecture/data-model)
 - [Uso de IA y sus límites](/architecture/ai-usage-and-limits)
 - [ADRs](/adr/) — las decisiones y sus alternativas descartadas
