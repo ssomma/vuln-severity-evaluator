@@ -104,7 +104,7 @@ npx docsify-cli serve docs/guide
 |---|---|
 | [ADD](docs/guide/add/README.md) | El diseño de la solución: drivers, alcance, flujo, seguridad, riesgos |
 | [Uso de IA y sus límites](docs/guide/architecture/ai-usage-and-limits.md) | Dónde se usa IA, dónde no, y qué puede salir mal |
-| [ADRs](docs/guide/adr/) | Las seis decisiones, con sus alternativas descartadas |
+| [ADRs](docs/guide/adr/) | Las siete decisiones, con sus alternativas descartadas |
 | [Endpoints](docs/guide/architecture/endpoints.md) | El contrato HTTP |
 | [Arquitectura](docs/guide/architecture/README.md) | Capas y guardrails |
 | [Proceso de investigación](docs/guide/_meta/research-log.md) | Qué hubo que mirar y qué cambió por haberlo mirado |

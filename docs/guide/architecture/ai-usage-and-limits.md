@@ -88,7 +88,7 @@ modelo lee o la política que interpreta el resultado. Sin registrarlo, sería i
 esas cuatro identidades y todas forman parte de la huella, así que un cambio produce una evaluación nueva en vez de
 reusar razonamiento o reglas anteriores.
 
-`EvaluationMetrics` cuenta los rechazos de schema: **una tasa de rechazos en aumento es el síntoma más temprano** de
+`ApplicationMetricCollector` cuenta los rechazos de schema: **una tasa de rechazos en aumento es el síntoma más temprano** de
 que el modelo dejó de responder dentro del vocabulario.
 
 ### Sesgo sistemático — el riesgo abierto

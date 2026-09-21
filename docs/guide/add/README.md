@@ -194,7 +194,7 @@ automática— en [Uso de IA y sus límites](/architecture/ai-usage-and-limits) 
   repetidas; el camino de lote queda fuera de alcance.
 - **Costo** — la huella incluye modelo, prompt, catálogo y política. Si esas versiones coinciden, el lookup evita
   cargar el catálogo completo y llamar al modelo; si alguna cambia, produce una evaluación nueva.
-- **Observabilidad** — `EvaluationMetrics` cuenta rechazos de schema, evaluaciones y reutilizaciones. La tasa de
+- **Observabilidad** — `ApplicationMetricCollector` cuenta rechazos de schema, evaluaciones y reutilizaciones. La tasa de
   rechazos es el indicador temprano de drift.
 - **Testabilidad** — La aritmética se verifica contra la especificación publicada *y* contra los
   coeficientes del seed; el flujo completo, con el modelo determinista.

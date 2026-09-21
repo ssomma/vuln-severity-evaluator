@@ -38,8 +38,8 @@ Evalúa una vulnerabilidad contra una aplicación y **persiste el resultado**.
 | `vulnerability.baseline_vector` | **no** | ≤ 512, lo interpreta el esquema activo |
 | `application.name` | sí | ≤ 128, nombre plano |
 | `application.risk_profile.*` | sí | Enums cerrados |
-| `application.runtime` | sí | ≤ 16 códigos, validados contra el catálogo |
-| `application.compensating_controls` | sí | ≤ 16 códigos, validados contra el catálogo |
+| `application.runtime` | no | ≤ 16 códigos, validados contra el catálogo; ausente o `null` se normaliza a una colección vacía |
+| `application.compensating_controls` | no | ≤ 16 códigos, validados contra el catálogo; ausente o `null` se normaliza a una colección vacía |
 
 `baseline_vector` es opcional a propósito. Si viene, el score se ancla a un dato duro y el modelo no puede tocarlo.
 Si no viene, el modelo lo deriva, y eso queda registrado como `MODEL_DERIVED` con confianza degradada y revisión
